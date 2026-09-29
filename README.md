@@ -63,4 +63,4 @@ Vývojové volby při běžném hraní nech vypnuté. Výsledky skutečně prove
 
 Verzujeme vlastní zdroje, modely, Unity `.meta` soubory, nastavení projektu a zámek balíčků. Lokální DLL, vytažené herní soubory, cache, buildy a nepoužitá ukázková scéna šablony jsou ignorované. Vlastní projekt pluginu `.csproj` se verzovat musí.
 
-Při přesouvání Unity assetu přesuň také jeho `.meta` soubor. Repozitář zatím nemá GitHub remote. Licenci pro případné veřejné zveřejnění je potřeba zvolit samostatně.
+Při přesouvání Unity assetu přesuň také jeho `.meta` soubor. [GitHub repozitář](https://github.com/danielsitek/lethal-company-more-scrap-items) je nastaven jako `origin`. Licenci pro případné veřejné zveřejnění je potřeba zvolit samostatně.

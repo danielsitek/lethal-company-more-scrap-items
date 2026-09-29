@@ -1,7 +1,7 @@
 {
   "name": "MoreScrapItems",
   "version_number": "0.1.0",
-  "website_url": "https://github.com/danielsitek",
+  "website_url": "https://github.com/danielsitek/lethal-company-more-scrap-items",
   "description": "Two original scrap items: a QUOTA mug and a framed moon landscape.",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2305",
