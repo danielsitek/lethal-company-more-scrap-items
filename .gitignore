@@ -10,7 +10,6 @@
 
 # Editor and .NET generated files
 .vs/
-.vscode/
 .idea/
 **/bin/
 **/obj/
