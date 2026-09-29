@@ -49,12 +49,4 @@ Po změně složitosti modelu uprav profil nebo poměr decimace v exportéru a z
 
 ## Nový předmět
 
-Zatím se předměty doplňují v kódu:
-
-1. Přidej Blender zdroj do `Art/`, FBX a ikonu do `Assets/MoreScrapItems/Models` a atlas `<ID>BaseColor.png` do `Assets/MoreScrapItems/Textures`. Model má používat jeden mesh, jednu UV mapu a jeden materiál.
-2. V `MoreScrapAssetBuilder.Build` přidej `MakeModel`, cestu prefabu a ikony do seznamu balíčku; rozšiř seznam validovaných prefabů, který nyní kontroluje první tři. Builder přiřadí atlas podle ID. Textura se dostane do bundle jako závislost materiálu.
-3. V `Plugin.Awake` přidej registraci s jedinečným interním názvem a ID, cenou, četností a váhou.
-4. V `Plugin.Register` nastav pro nový předmět odpovídající pozici v ruce, rotaci na podlaze a vlastnosti. Současné podmínky rozlišují hrnek a rámeček; další předmět nesmí automaticky zdědit nastavení rámečku.
-5. Sestav a ověř nový předmět ve hře. Před multiplayer testem aktualizuj mod u všech klientů.
-
-Budoucí katalog předmětů může tato nastavení sjednotit. V této verzi ještě není implementovaný.
+Stručný postup od Blenderu po test ve hře je v [návodu k přidání předmětu](new-item.md).

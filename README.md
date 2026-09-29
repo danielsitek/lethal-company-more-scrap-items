@@ -21,7 +21,7 @@ Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při vý
 - `scripts/Build-Package.ps1`: sestavení pluginu a instalačního ZIPu.
 - `scripts/Optimize-Models.py`: znovuvytvoření modelů z původních zdrojů; přepíše ruční úpravy optimalizovaných `.blend`.
 - `scripts/Export-Edited-Model.py`: export uložených ručně upravených `.blend` do herního FBX.
-- `docs/`: postup úprav a výsledky ověření.
+- `docs/`: [návod pro nový předmět](docs/new-item.md), postup úprav a výsledky ověření.
 
 ## Vývojové prostředí
 
