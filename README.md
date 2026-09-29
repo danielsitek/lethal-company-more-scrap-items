@@ -4,19 +4,20 @@ Mod pro Lethal Company od **danielsitek**. Přidává hrnek QUOTA a rámeček s 
 
 | Předmět | Základní hodnota | Četnost | Trojúhelníky |
 | --- | --- | --- | --- |
-| Quota mug | 50–110 | 25 | 2 892 |
-| Moon frame | 90–180 | 18 | 1 868 |
+| Quota mug | 50–110 | 25 | 606 |
+| Moon frame | 90–180 | 18 | 310 |
 
 Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při výběru scrapu.
 
 ## Struktura
 
-- `Art/`: editovatelné Blender zdroje.
+- `Art/`: optimalizované Blender zdroje; původní modely jsou v `Art/Source`.
 - `Assets/MoreScrapItems/`: FBX, ikony, materiály, prefaby a Unity nástroje.
 - `Assets/HDRPDefaultResources/`: HDRP nastavení včetně zachovaných profilů šablony.
 - `src/MoreScrapItems/`: BepInEx plugin.
 - `packaging/`: metadata, ikona a README instalačního balíčku.
 - `scripts/Build-Package.ps1`: sestavení pluginu a instalačního ZIPu.
+- `scripts/Optimize-Models.py`: opakovatelný export low-poly modelů a texturových atlasů z původních zdrojů.
 - `docs/`: postup úprav a výsledky ověření.
 
 ## Vývojové prostředí
