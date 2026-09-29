@@ -1,10 +1,34 @@
-# Přidání nového předmětu
+# Nový model (scrap předmět)
 
-Příklad používá interní název `CopperBell`. Stejný název používej v souborech, Unity builderu i pluginu. Nový předmět vyžaduje úpravu kódu; samotný FBX nestačí.
+Příklad používá ID `CopperBell`. Stejné ID použij ve všech názvech souborů i v kódu.
 
-1. **Připrav model a textury v Blenderu.** Ulož upravitelný zdroj jako `Art/CopperBell.blend`. Použij jeden mesh, jednu UV mapu a jeden materiál; detaily, které nepotřebují siluetu, dej do textury. Exportuj `Assets/MoreScrapItems/Models/CopperBell.fbx` s osami Forward `-Z`, Up `Y`, atlas `Assets/MoreScrapItems/Textures/CopperBellBaseColor.png` (512 × 512) a průhlednou ikonu `Assets/MoreScrapItems/Models/CopperBellIcon.png`. Po importu do Unity zachovej jejich `.meta` soubory. Skript `Export-Edited-Model.py` zatím podporuje jen tři stávající modely; pro nový model jej musíš rozšířit, nebo FBX exportovat z Blenderu ručně.
-2. **Přidej prefab do AssetBundle.** V `Assets/MoreScrapItems/Editor/MoreScrapAssetBuilder.cs` přidej `MakeModel("CopperBell", 1.0f)` a uprav měřítko podle potřebné velikosti ve hře. Do pole `paths` přidej `Prefabs/CopperBell.prefab` mezi prefaby a `Models/CopperBellIcon.png` mezi ikony. Změň také `paths.Take(3)` na `paths.Take(4)`, aby validace zahrnovala všechny čtyři modelové prefaby. Builder vytvoří materiál a kolizi podle FBX a připojí atlas podle názvu.
-3. **Zaregistruj scrap.** V `src/MoreScrapItems/Plugin.cs` přidej v `Awake` konfigurační hodnotu četnosti a volání `Register` s jedinečným `itemId`, názvem, rozsahem ceny a váhou. V `Register` nastav pro nový předmět vlastní vodivost, zvuk, polohu/rotaci v ruce a polohu po odložení. Současné podmínky pro hrnek a rámeček jinak novému předmětu přiřadí některé vlastnosti rámečku. Pokud má zvláštní model při položení, doplň i přepínání jeho podoby jako u `MoonFrame`.
-4. **Sestav a zkus ve hře.** V Unity 2022.3.9f1 spusť **Tools → More Scrap Items → Build models and scrap bundle** a zkontroluj `Builds/MoreScrapItems/asset-validation.txt`. Pak v kořeni projektu spusť `./scripts/Build-Package.ps1` a ZIP importuj do testovacího profilu r2modman. Zkontroluj vytvoření předmětu, texturu, ikonu, skenování, zvednutí, orientaci v ruce a polohu po odložení. Pro místní test lze zapnout `[Development] SpawnInShipForTesting`; po testu jej vypni. Před multiplayerem nainstaluj stejný DLL i AssetBundle všem hráčům.
+## 1. Připrav soubory
 
-Podrobnosti k texturám, exportu stávajících modelů a jejich variantám jsou v [postupu pro assety](asset-workflow.md).
+| Co | Kam |
+| --- | --- |
+| Blender zdroj | `Art/CopperBell.blend` |
+| FBX | `Assets/MoreScrapItems/Models/CopperBell.fbx` |
+| Atlas 512 × 512 | `Assets/MoreScrapItems/Textures/CopperBellBaseColor.png` |
+| Průhledná ikona | `Assets/MoreScrapItems/Models/CopperBellIcon.png` |
+
+Model má mít jeden mesh, jednu UV mapu a jeden materiál. FBX exportuj s osami Forward `-Z`, Up `Y`. Unity `.meta` soubory ponech v repozitáři. `Export-Edited-Model.py` zatím umí jen stávající modely; nový FBX exportuj ručně nebo skript rozšiř.
+
+## 2. Přidej model do Unity
+
+V `Assets/MoreScrapItems/Editor/MoreScrapAssetBuilder.cs`:
+
+- Přidej `MakeModel("CopperBell", 1.0f)`; měřítko uprav podle výsledku ve hře.
+- Do `paths` vlož prefab mezi prefaby a ikonu mezi ikony.
+- Rozšiř validaci z `paths.Take(3)` na `paths.Take(4)`.
+
+## 3. Zaregistruj předmět
+
+V `src/MoreScrapItems/Plugin.cs` přidej v `Awake` četnost a volání `Register` s unikátním `itemId`, názvem, cenou a váhou. V `Register` nastav vlastní úchop, polohu po odložení a další vlastnosti; současný kód jinak novému ID přidělí některé hodnoty rámečku. Pro jiný vzhled po odložení doplň variantu podle `MoonFrame`.
+
+## 4. Sestav a ověř
+
+1. V Unity spusť **Tools → More Scrap Items → Build models and scrap bundle** a zkontroluj `Builds/MoreScrapItems/asset-validation.txt`.
+2. Spusť `./scripts/Build-Package.ps1` a ZIP importuj do testovacího profilu r2modman.
+3. Ve hře ověř texturu, ikonu, skenování, zvednutí, natočení v ruce a polohu na zemi. Pro místní test můžeš zapnout `[Development] SpawnInShipForTesting`; potom jej vypni.
+
+Podrobnosti jsou v [postupu pro assety](asset-workflow.md). V multiplayeru musí mít všichni stejnou verzi DLL i AssetBundle.
