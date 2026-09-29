@@ -21,7 +21,7 @@ Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při vý
 
 ## Vývojové prostředí
 
-Unity **2022.3.9f1**, HDRP **14.0.3**, .NET SDK **8** a Blender. Použij lokální instalaci Lethal Company a r2modman profil s BepInEx **5.4.2305**, LethalLib **1.2.0** a jeho závislostmi. Profil nejprve jednou spusť přes Start modded, aby vznikla knihovna MMHOOK.
+Unity **2022.3.9f1**, HDRP **14.0.8**, .NET SDK **8** a Blender. Použij lokální instalaci Lethal Company a r2modman profil s BepInEx **5.4.2305**, LethalLib **1.2.0** a jeho závislostmi. Profil nejprve jednou spusť přes Start modded, aby vznikla knihovna MMHOOK.
 
 Otevři kořen repozitáře v Unity Hubu. Unity obnoví balíčky podle `Packages/packages-lock.json`. Projekt sestavuje modelový AssetBundle; kompletní extrakce hry Project Patcherem není potřeba. Zachované balíčky patcheru jsou volitelné vývojové nástroje.
 
