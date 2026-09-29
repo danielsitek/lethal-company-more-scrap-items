@@ -19,7 +19,7 @@ Vývojový automatický test používá běžné herní metody zvednutí a odlo�
 Autor: danielsitek (https://github.com/danielsitek).
 Neověřeno: připojení dalšího klienta, kompletní herní průchod/prodej a kompatibilita se všemi dalšími mody profilu lethal_01.
 
-## Optimalizované modely 2026-09-29
+## Předchozí optimalizace 2026-09-29
 
 - Blender zdroje: QuotaMug 606 trojúhelníků (původně 2 892), MoonFrame 310 (původně 1 868).
 - Ověřeno: jeden mesh, jedna UV mapa a jeden materiál na předmět; zabalené textury a relativní existující cesty. Počátek, rotace a měřítko modelu zachované. Šířka/výška zachovaná; u rámu odstraněn přibližně 1 mm vystouplých špendlíků.
@@ -29,3 +29,13 @@ Neověřeno: připojení dalšího klienta, kompletní herní průchod/prodej a 
 - Lethal Company v81, čistý vývojový profil: aktualizovaný AssetBundle načten a oba předměty zaregistrovány bez výjimky. Opakovaný místní test po optimalizaci: oba předměty vytvořeny, HOLD_TEST held=True a DROP_TEST released=True pro hrnek i rámeček. Vizuálně potvrzeno: hrnek má otvor nahoru a ucho u ruky; obrázek rámu je nahoře správně a úchop u spodního rohu. Textury zobrazené správně bez chybějících materiálů. Nastavení úchopu v pluginu se nezměnilo. Automatický test úchopu ve vývojovém profilu je po ověření opět vypnutý.
 - Nároky: 4 760 → 916 trojúhelníků celkem, 23 → 2 renderery. AssetBundle 942 843 → 1 145 432 bajtů kvůli novým texturám. Změna FPS a celkové paměti nebyla změřena.
 - Původní herní ověření výše platí pro původní geometrii. Nejde o nový test druhého multiplayer klienta ani prodeje předmětů.
+
+## Hrnek a dvě polohy rámečku 2026-09-29
+
+- Upravené Blender modely: hrnek 604 trojúhelníků bez cedulky, QUOTA přímo na válcové UV těla; rámeček v ruce 40 trojúhelníků a položený rámeček 40. Třetí mesh sdílí rámovou texturu a materiál. Kontrola všech `.blend`: jeden mesh, jedna UV mapa, jeden materiál, relativní zabalený atlas, nezměněný počátek a osy.
+- Vizuální náhled: rám má ostré hrany, pokosové spoje v textuře a varianta položená na zemi má náklon 15° dozadu s vyklopenou zadní podpěrou. Ve hře je celý nápis QUOTA vidět na hrnku při držení.
+- Unity 2022.3.9f1: úspěšný Windows AssetBundle se třemi prefaby. Všechny mají jeden renderer a jeden materiál, atlas 512 × 512 v BC7 a 10 mip úrovní. Modely mají 604 / 40 / 40 trojúhelníků. Položená varianta má širší kolizní i skenovací box v hloubce.
+- Plugin .NET Standard 2.1 a ZIP: Release build bez chyb a varování. AssetBundle má 1 118 896 bajtů. Instalován DLL i AssetBundle v profilech `lethal_01` a `MoreScrapItems-Dev`.
+- Lethal Company v81, čistý místní vývojový profil: oba předměty vytvořeny; jejich běžné herní zvednutí i odložení uspělo. Rámeček se při prvním i druhém zvednutí přepnul na `MoonFrame`, při obou odloženích na `MoonFramePlaced`. V každém stavu zůstal jeden renderer.
+- Měření skutečné polohy položeného rámečku proti podlaze po obou odloženích: mezera `0,0000 m` (před úpravou výšky byla `0,0400 m`). Po testu je `RunHoldingTest` opět vypnutý.
+- Neověřeno: druhý multiplayer klient, prodej předmětu a kompatibilita s ostatními mody hlavního profilu.

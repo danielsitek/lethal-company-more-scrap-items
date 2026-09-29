@@ -4,8 +4,10 @@ Mod pro Lethal Company od **danielsitek**. Přidává hrnek QUOTA a rámeček s 
 
 | Předmět | Základní hodnota | Četnost | Trojúhelníky |
 | --- | --- | --- | --- |
-| Quota mug | 50–110 | 25 | 606 |
-| Moon frame | 90–180 | 18 | 310 |
+| Quota mug | 50–110 | 25 | 604 |
+| Moon frame | 90–180 | 18 | 40 |
+
+Rámeček se při odložení nakloní o 15° a vyklopí podpěru; v ruce je rovný se složenou podpěrou. Obě varianty mají 40 trojúhelníků a sdílejí texturu i materiál.
 
 Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při výběru scrapu.
 
