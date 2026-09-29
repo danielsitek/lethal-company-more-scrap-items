@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Copy to Build.local.props and set your own installed game/profile paths. -->
+    <GameManaged>D:/SteamLibrary/steamapps/common/Lethal Company/Lethal Company_Data/Managed</GameManaged>
+    <ProfileRoot>D:/ModProfiles/LethalCompany/MyProfile</ProfileRoot>
+  </PropertyGroup>
+</Project>

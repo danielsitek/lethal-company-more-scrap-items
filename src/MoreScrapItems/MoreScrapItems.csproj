@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>MoreScrapItems</AssemblyName>
+    <RootNamespace>Dan.MoreScrapItems</RootNamespace>
+    <Version>0.1.0</Version>
+    <Authors>danielsitek</Authors>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <GameManaged Condition="'$(GameManaged)' == ''">$([System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)'))/Steam/steamapps/common/Lethal Company/Lethal Company_Data/Managed</GameManaged>
+    <ProfileRoot Condition="'$(ProfileRoot)' == ''">$(APPDATA)/r2modmanPlus-local/LethalCompany/profiles/lethal_01</ProfileRoot>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MoreScrapAssetBuilder.cs" />
+    <Reference Include="BepInEx"><HintPath>$(ProfileRoot)/BepInEx/core/BepInEx.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="LethalLib"><HintPath>$(ProfileRoot)/BepInEx/plugins/Evaisa-LethalLib/LethalLib/LethalLib.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Assembly-CSharp"><HintPath>$(GameManaged)/Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine"><HintPath>$(GameManaged)/UnityEngine.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.CoreModule"><HintPath>$(GameManaged)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(GameManaged)/UnityEngine.AssetBundleModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Unity.Netcode.Runtime"><HintPath>$(GameManaged)/Unity.Netcode.Runtime.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(GameManaged)/UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.AudioModule"><HintPath>$(GameManaged)/UnityEngine.AudioModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="MMHOOK_Assembly-CSharp"><HintPath>$(ProfileRoot)/BepInEx/plugins/MMHOOK/Managed/MMHOOK_Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <Target Name="ValidateLocalReferences" BeforeTargets="ResolveAssemblyReferences">
+    <Error Condition="!Exists('$(GameManaged)/Assembly-CSharp.dll')" Text="Game DLLs not found. Set GameManaged in Build.local.props or pass -p:GameManaged=..." />
+    <Error Condition="!Exists('$(ProfileRoot)/BepInEx/core/BepInEx.dll')" Text="BepInEx not found. Set ProfileRoot to an r2modman profile with BepInEx installed." />
+    <Error Condition="!Exists('$(ProfileRoot)/BepInEx/plugins/Evaisa-LethalLib/LethalLib/LethalLib.dll')" Text="Install LethalLib 1.2.0 and its dependencies in ProfileRoot." />
+    <Error Condition="!Exists('$(ProfileRoot)/BepInEx/plugins/MMHOOK/Managed/MMHOOK_Assembly-CSharp.dll')" Text="Launch the modded game once so HookGen creates MMHOOK_Assembly-CSharp.dll." />
+  </Target>
+</Project>
