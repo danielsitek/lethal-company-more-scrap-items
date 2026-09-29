@@ -10,7 +10,7 @@ Importuj ZIP jako místní mod do r2modmanu s autorem `danielsitek`, nebo zkopí
 
 ## Konfigurace
 
-Soubor: `BepInEx/config/dansi.more-scrap-items.cfg`.
+Soubor: `BepInEx/config/danielsitek.more-scrap-items.cfg`. Existující nastavení ze starého souboru se při prvním spuštění zkopíruje.
 
 - `[Spawn]`: relativní četnost předmětů; 0 předmět vypne.
 - `[Holding]`: posun a natočení v ruce. Výchozí nastavení bylo vizuálně ověřené ve hře.

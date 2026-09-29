@@ -50,7 +50,7 @@ ZIP lze importovat do r2modmanu jako místní mod s autorem `danielsitek`. Při 
 
 ## Nastavení a testování
 
-Konfigurace je `BepInEx/config/dansi.more-scrap-items.cfg`. Interní GUID zůstává kvůli návaznosti konfigurace; autor balíčku je `danielsitek`.
+Konfigurace je `BepInEx/config/danielsitek.more-scrap-items.cfg`. Při prvním spuštění plugin zkopíruje nastavení ze starého `dansi.more-scrap-items.cfg`, pokud nový soubor ještě neexistuje; starý soubor ponechá jako zálohu. Síťové názvy předmětů zůstávají stejné.
 
 - `[Spawn]`: četnost předmětů; 0 vypne daný předmět.
 - `[Holding]`: pozice a rotace vůči hernímu úchopu.
