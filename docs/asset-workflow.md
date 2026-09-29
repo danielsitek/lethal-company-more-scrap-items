@@ -4,9 +4,19 @@
 
 1. Otevři příslušný `.blend` v `Art/`. Obsahuje optimalizovaný mesh, UV mapu a zabalený texturový atlas. Zachovej střed modelu, měřítko a osy.
 2. Textury jsou v `Assets/MoreScrapItems/Textures`: `QuotaMugBaseColor.png` a `MoonFrameBaseColor.png`. Horní část obsahuje nápis nebo obrázek, spodní pás obsahuje barevné vzorky pro ostatní povrchy. Při ruční úpravě atlasu zachovej rozmístění vzorků i UV mapování.
-3. Exportuj model do stejného FBX v `Assets/MoreScrapItems/Models`. Export používá jednotky metrů, forward `-Z`, up `Y` a aplikovanou konverzi souřadnic. Stávající `.meta` ponech.
+3. Po ruční změně uloženého `.blend` spusť níže uvedený exportní příkaz. Zachová upravený mesh a přepíše odpovídající FBX v `Assets/MoreScrapItems/Models`; stávající `.meta` ponechá. Export používá jednotky metrů, forward `-Z` a up `Y`.
 4. V Unity znovu sestav bundle a poté instalační ZIP podle hlavního README.
 5. V čistém vývojovém profilu ověř velikost, materiály, skenování, zvednutí, úchop a odložení. Změna geometrie může vyžadovat nové hodnoty `[Holding]` a klidové rotace.
+
+Pro upravený hrnek spusť z kořene projektu:
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python scripts/Export-Edited-Model.py -- --project-root . --model QuotaMug
+```
+
+Stejný skript přijímá `MoonFrame` a `MoonFramePlaced`. Před exportem kontroluje jeden mesh, jednu UV mapu a materiál, shodu zabalené a externí textury a původní rozměry potřebné pro herní úchop. Pokud rozměry úmyslně změníš, uprav nejprve úchop a kolizi. Poté sestav Unity bundle a instalační ZIP.
+
+`Optimize-Models.py` používá původní soubory v `Art/Source` a přepisuje optimalizované `.blend`; na ručně upravený hrnek ho nespouštěj, pokud chceš své změny zachovat.
 
 ## Textury a optimalizace
 

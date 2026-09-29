@@ -39,3 +39,10 @@ Neověřeno: připojení dalšího klienta, kompletní herní průchod/prodej a 
 - Lethal Company v81, čistý místní vývojový profil: oba předměty vytvořeny; jejich běžné herní zvednutí i odložení uspělo. Rámeček se při prvním i druhém zvednutí přepnul na `MoonFrame`, při obou odloženích na `MoonFramePlaced`. V každém stavu zůstal jeden renderer.
 - Měření skutečné polohy položeného rámečku proti podlaze po obou odloženích: mezera `0,0000 m` (před úpravou výšky byla `0,0400 m`). Po testu je `RunHoldingTest` opět vypnutý.
 - Neověřeno: druhý multiplayer klient, prodej předmětu a kompatibilita s ostatními mody hlavního profilu.
+
+## Ručně upravený hrnek 2026-09-29
+
+- Uložený `Art/QuotaMug.blend` má upravený horní okraj a napojení ucha. Změnilo se 53 vrcholů, ale zůstalo 604 trojúhelníků, jedna UV mapa a materiál, zabalený atlas, počátek, osy a celkové rozměry. Externí PNG a zabalená textura se shodují.
+- Upravený mesh byl vyexportován přímo z uloženého `.blend` do `QuotaMug.fbx` pomocí `Export-Edited-Model.py`; generátor z `Art/Source` nebyl spuštěn. Unity 2022.3.9f1 úspěšně sestavilo Windows AssetBundle. Kontrola prefabu: 604 trojúhelníků, jeden renderer, jeden materiál, atlas 512 × 512 / BC7 / 10 mip úrovní. Plugin Release a instalační ZIP sestaveny bez chyb a varování.
+- Lethal Company v81, místní vývojový profil: nový hrnek se vytvořil, zvedl běžnou herní metodou (`HOLD_TEST held=True`) a odložil (`DROP_TEST released=True`). Vizuálně má otvor nahoru, ucho napojené na tělo a celý nápis QUOTA je čitelný v ruce. Rámeček zůstal funkční; po dvou odloženích mezera nad podlahou `0,0000 m`.
+- DLL a AssetBundle byly aktualizovány v profilech `lethal_01` a `MoreScrapItems-Dev`. Vývojový automatický test byl po kontrole znovu vypnut. Druhý multiplayer klient nebyl testován.
