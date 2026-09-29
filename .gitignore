@@ -1,0 +1,64 @@
+# Unity generated state and builds
+/Library/
+/Temp/
+/Logs/
+/UserSettings/
+/Build/
+/Builds/
+/MemoryCaptures/
+/Recordings/
+
+# Editor and .NET generated files
+.vs/
+.vscode/
+.idea/
+**/bin/
+**/obj/
+/*.csproj
+/*.sln
+*.unityproj
+*.suo
+*.user
+*.userprefs
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+.gradle/
+
+# Local dependencies, extracted game files and patcher state
+/AssetRipper/
+/AssetRipperOutput/
+/Assets/LethalCompany/
+/Assets/LethalCompany.meta
+/Assets/AssetStore/
+/Assets/AssetStore.meta
+/Assets/Unity/
+/Assets/Unity.meta
+/Assets/UPPatcherUserSettings.asset*
+/Assets/README.md*
+*.dll
+*.dll.meta
+/Build.local.props
+
+# Unused HDRP template demo assets; required settings live in HDRPDefaultResources
+/Assets/SampleSceneAssets/
+/Assets/SampleSceneAssets.meta
+/Assets/Scenes/SampleScene/
+/Assets/Scenes/SampleScene.meta
+/Assets/Scenes/SampleScene.unity*
+/Assets/Scenes/PrefabEditingScene.unity*
+
+# Logs, one-off setup reports and editor build triggers
+*.log
+/steps-results.json
+/build-more-scrap.request
+/more-scrap-build-error.txt
+
+# Blender backup files and temporary files
+*.blend1
+*.blend2
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
