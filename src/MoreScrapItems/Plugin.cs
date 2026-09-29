@@ -70,8 +70,8 @@ public sealed class Plugin : BaseUnityPlugin
         item.clinkAudios = Array.Empty<AudioClip>();
         var sound = MakeSound(id, id == "QuotaMug" ? 1700f : 650f);
         item.grabSFX = sound; item.dropSFX = sound; item.pocketSFX = sound;
-        item.restingRotation = id == "QuotaMug" ? Vector3.zero : new Vector3(-90,0,0);
-        item.verticalOffset = id == "QuotaMug" ? collider.size.y / 2 : collider.size.z / 2;
+        item.restingRotation = Vector3.zero;
+        item.verticalOffset = collider.size.y / 2;
         item.positionOffset = id == "QuotaMug" ? new Vector3(.015f,.22f,-.02f) : new Vector3(.18f,.24f,0);
         // The game's hand anchor has a quarter-turn roll: compensate so each model stays upright.
         item.rotationOffset = new Vector3(0,180,90);
@@ -90,6 +90,16 @@ public sealed class Plugin : BaseUnityPlugin
         var scan = scanner.AddComponent<ScanNodeProperties>();
         scan.headerText = title; scan.subText = "Value: $0"; scan.nodeType = 2;
         scan.maxRange = 13; scan.minRange = 1; scan.requiresLineOfSight = true;
+        if (id == "MoonFrame")
+        {
+            var placed = assets.LoadAsset<GameObject>("Assets/MoreScrapItems/Prefabs/MoonFramePlaced.prefab");
+            if (placed == null) throw new InvalidOperationException("Missing placed frame model; update DLL and asset bundle together.");
+            var placedBox = placed.GetComponent<BoxCollider>();
+            // The game raises a discarded prop by about 4 cm after applying verticalOffset.
+            item.verticalOffset = placedBox.size.y / 2 - placedBox.center.y - .04f;
+            prefab.AddComponent<FramePresentation>().Configure(prop, visual.GetComponentInChildren<MeshFilter>(),
+                model, placed, collider, scanCollider);
+        }
         Utilities.FixMixerGroups(prefab);
         Items.RegisterScrap(item, rarity, Levels.LevelTypes.All);
         registered.Add(item);
@@ -132,6 +142,7 @@ public sealed class Plugin : BaseUnityPlugin
             yield return new WaitForSeconds(2);
             bool valid = playerController.currentlyHeldObjectServer == prop && prop.isHeld && prop.parentObject == playerController.localItemHolder;
             Logger.LogInfo($"HOLD_TEST {prop.itemProperties.itemName}: held={valid}; hand={prop.parentObject?.eulerAngles}; model={prop.transform.eulerAngles}");
+            LogFrameState(prop, "held");
             if (!valid) { Logger.LogError("Normal grab failed in holding test."); yield break; }
             for (int second = 0; second < 45; second++)
             {
@@ -144,6 +155,39 @@ public sealed class Plugin : BaseUnityPlugin
             playerController.DiscardHeldObject();
             yield return new WaitForSeconds(2);
             Logger.LogInfo($"DROP_TEST {prop.itemProperties.itemName}: released={!prop.isHeld && prop.parentObject == null}");
+            LogFrameState(prop, "placed");
+            if (prop.GetComponent<FramePresentation>() != null)
+            {
+                yield return new WaitForSeconds(8);
+                prop.transform.position = camera.position + camera.forward * 1.3f;
+                prop.fallTime = 1; prop.hasHitGround = true;
+                Physics.SyncTransforms();
+                beginGrab.Invoke(playerController, null);
+                yield return new WaitForSeconds(2);
+                Logger.LogInfo($"REGRAB_TEST Moon frame: held={prop.isHeld && playerController.currentlyHeldObjectServer == prop}");
+                LogFrameState(prop, "held");
+                yield return new WaitForSeconds(8);
+                playerController.DiscardHeldObject();
+                yield return new WaitForSeconds(2);
+                LogFrameState(prop, "placed");
+            }
+        }
+    }
+
+    private void LogFrameState(PhysicsProp prop, string expected)
+    {
+        var frame = prop.GetComponent<FramePresentation>();
+        if (frame == null) return;
+        var mesh = prop.GetComponentInChildren<MeshFilter>().sharedMesh;
+        bool valid = frame.ShowingHeld == (expected == "held");
+        Logger.LogInfo($"FRAME_STATE expected={expected}; valid={valid}; mesh={mesh.name}; floorOffset={prop.itemProperties.verticalOffset:F4}; localBounds={prop.GetComponent<BoxCollider>().size}");
+        if (!valid) Logger.LogError("Frame presentation did not match the grab state.");
+        if (expected == "placed")
+        {
+            var bounds = prop.mainObjectRenderer.bounds;
+            if (Physics.Raycast(bounds.center + Vector3.up * .5f, Vector3.down, out var hit, 2,
+                LayerMask.GetMask("Room", "Colliders"), QueryTriggerInteraction.Ignore))
+                Logger.LogInfo($"FRAME_FLOOR gap={bounds.min.y - hit.point.y:F4}; rendererCount={prop.GetComponentsInChildren<MeshRenderer>().Length}");
         }
     }
 

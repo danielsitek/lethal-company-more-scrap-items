@@ -29,13 +29,15 @@ public static class MoreScrapAssetBuilder
             AssetDatabase.Refresh();
             MakeModel("QuotaMug", 1.6f);
             MakeModel("MoonFrame", 1.4f);
+            MakeModel("MoonFramePlaced", 1.4f, "MoonFrame");
             AssetDatabase.SaveAssets();
             var paths = new[] {
                 Root + "/Prefabs/QuotaMug.prefab", Root + "/Prefabs/MoonFrame.prefab",
+                Root + "/Prefabs/MoonFramePlaced.prefab",
                 Root + "/Models/QuotaMugIcon.png", Root + "/Models/MoonFrameIcon.png"
             };
             var report = new List<string>();
-            foreach (var path in paths.Take(2))
+            foreach (var path in paths.Take(3))
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 var meshes = prefab.GetComponentsInChildren<MeshFilter>();
@@ -69,8 +71,9 @@ public static class MoreScrapAssetBuilder
         }
     }
 
-    static void MakeModel(string id, float scale)
+    static void MakeModel(string id, float scale, string textureId = null)
     {
+        textureId = textureId ?? id;
         var modelPath = Root + "/Models/" + id + ".fbx";
         var modelImporter = (ModelImporter)AssetImporter.GetAtPath(modelPath);
         modelImporter.importAnimation = false;
@@ -79,7 +82,7 @@ public static class MoreScrapAssetBuilder
         modelImporter.importBlendShapes = false;
         modelImporter.isReadable = false;
         modelImporter.SaveAndReimport();
-        var texturePath = Root + "/Textures/" + id + "BaseColor.png";
+        var texturePath = Root + "/Textures/" + textureId + "BaseColor.png";
         var textureImporter = (TextureImporter)AssetImporter.GetAtPath(texturePath);
         if (textureImporter == null) throw new Exception("Missing atlas: " + texturePath);
         textureImporter.textureType = TextureImporterType.Default;
@@ -108,7 +111,7 @@ public static class MoreScrapAssetBuilder
             visual.transform.SetParent(root.transform, false);
             visual.transform.localScale = Vector3.one * scale;
             var renderers = visual.GetComponentsInChildren<MeshRenderer>();
-            var material = CreateMaterial(id, AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
+            var material = CreateMaterial(textureId, AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
             foreach (var renderer in renderers) renderer.sharedMaterials = new[] { material };
             if (renderers.Length == 0) throw new Exception(id + ": model has no renderer.");
             var bounds = renderers[0].bounds;
@@ -119,6 +122,7 @@ public static class MoreScrapAssetBuilder
             PrefabUtility.SaveAsPrefabAsset(root, Root + "/Prefabs/" + id + ".prefab");
         }
         finally { UnityEngine.Object.DestroyImmediate(root); }
+        if (id != textureId) return;
         var iconImporter = (TextureImporter)AssetImporter.GetAtPath(Root + "/Models/" + id + "Icon.png");
         iconImporter.textureType = TextureImporterType.Sprite;
         iconImporter.spriteImportMode = SpriteImportMode.Single;

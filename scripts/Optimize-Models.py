@@ -8,7 +8,7 @@ from pathlib import Path
 import sys
 import json
 import bpy
-from mathutils import Vector
+from mathutils import Vector, Matrix
 from mathutils.kdtree import KDTree
 
 parser = argparse.ArgumentParser()
@@ -25,7 +25,8 @@ palette = {
  'Brass': (.61,.36,.11), 'IvoryMat': (.86,.81,.68),
  'NightSky': (.03,.085,.16), 'AmberMoon': (.95,.52,.18),
  'DistantMountains': (.14,.33,.39), 'NearMountains': (.04,.20,.23),
- 'Snow': (.68,.79,.73), 'FrameBacking': (.12,.09,.058)
+ 'Snow': (.68,.79,.73), 'FrameBacking': (.12,.09,.058),
+ 'WalnutJoint': (.065,.025,.009)
 }
 swatches = list(palette)
 atlas_size = 512
@@ -146,7 +147,7 @@ def export(name, objects, material, original_bounds):
  low, high = bounds(obj)
  # The existing held poses rely on these extents. Fail before publishing a mismatched model.
  tolerance = .002 if name == 'MoonFrame' else .0001
- if max(abs(low[i]-original_bounds[0][i]) for i in range(3)) > tolerance or max(abs(high[i]-original_bounds[1][i]) for i in range(3)) > tolerance:
+ if original_bounds is not None and (max(abs(low[i]-original_bounds[0][i]) for i in range(3)) > tolerance or max(abs(high[i]-original_bounds[1][i]) for i in range(3)) > tolerance):
   raise RuntimeError(f'{name}: bounds changed: {tuple(low)}, {tuple(high)}')
  return {'triangles':len(obj.data.loop_triangles),'objects':1,'materials':1,'texture':f'{atlas_size}x{atlas_size}','bounds':[list(low),list(high)]}
 
@@ -163,9 +164,17 @@ def mug():
  text=next(o for o in originals if o.name.startswith('QuotaPrint'))
  body=next(o for o in originals if o.name.startswith('EnamelMugBody'))
  handle=next(o for o in originals if o.name.startswith('MugHandle'))
- # Render only the flat label and its existing lettering; the letters become pixels.
- body.hide_render=handle.hide_render=True
- image=render_atlas(name, [badge,text], .12)
+ # Bake ink onto an enamel background, sized for cylindrical UVs rather than a label card.
+ circumference=2*math.pi*.0825
+ vertical_extent=.23
+ body.hide_render=handle.hide_render=badge.hide_render=True
+ enamel=bpy.data.materials.new('EnamelCream')
+ ink=bpy.data.materials.new('QuotaInk')
+ text.data.materials.clear();text.data.materials.append(ink)
+ text.matrix_world=Matrix.Translation((0,0,.05*circumference)) @ Matrix.Diagonal((1,1,circumference/vertical_extent,1)) @ text.matrix_world
+ half=circumference/2
+ background=quad('BakeEnamel', [(-half,-.0858,-half),(half,-.0858,-half),(half,-.0858,half),(-half,-.0858,half)],enamel)
+ image=render_atlas(name, [background,text], circumference)
  body.hide_render=handle.hide_render=False
  material=atlas_material(name,image)
  body.data.calc_loop_triangles()
@@ -195,6 +204,13 @@ def mug():
   _,idx,_=kd.find(p.center)
   key=body.data.materials[body.data.polygons[idx].material_index].name.split('.')[0]
   uv_color(mesh,p,key)
+  if p.index//segments==1:
+   angles=[math.atan2(mesh.vertices[mesh.loops[loop].vertex_index].co.y,mesh.vertices[mesh.loops[loop].vertex_index].co.x) for loop in p.loop_indices]
+   us=[(.375+(angle+math.pi/2)/(2*math.pi))%1 for angle in angles]
+   if max(us)-min(us)>.5:us=[u+1 if u<.5 else u for u in us]
+   for loop,u in zip(p.loop_indices,us):
+    z=mesh.vertices[mesh.loops[loop].vertex_index].co.z
+    mesh.uv_layers.active.data[loop].uv=(u,z/vertical_extent+.55)
   p.use_smooth=p.index<(len(profile)-1)*segments
  # Mark transitions across the lip and base instead of smoothing through the entire cup.
  select([low_body])
@@ -213,60 +229,91 @@ def mug():
   for i in range(3): v.co[i]=hb[0][i]+(v.co[i]-lb[0][i])/(lb[1][i]-lb[0][i])*(hb[1][i]-hb[0][i])
  if not handle.data.uv_layers: handle.data.uv_layers.new(name='UVMap')
  for p in handle.data.polygons: uv_color(handle.data,p,'EnamelCream')
- if not badge.data.uv_layers: badge.data.uv_layers.new(name='UVMap')
- for p in badge.data.polygons: uv_project(badge,p,.12)
  bpy.data.objects.remove(body,do_unlink=True)
  bpy.data.objects.remove(text,do_unlink=True)
- return export(name,[low_body,handle,badge],material,original_bounds)
+ bpy.data.objects.remove(badge,do_unlink=True)
+ bpy.data.objects.remove(background,do_unlink=True)
+ return export(name,[low_body,handle],material,original_bounds)
+
+def box(name, lo, hi, color, material):
+ bpy.ops.mesh.primitive_cube_add(size=1,location=(lo+hi)/2)
+ obj=bpy.context.object;obj.name=name;obj.dimensions=hi-lo
+ bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
+ while obj.data.uv_layers:obj.data.uv_layers.remove(obj.data.uv_layers[0])
+ obj.data.uv_layers.new(name='UVMap');obj.data.materials.append(material)
+ for p in obj.data.polygons:uv_color(obj.data,p,color)
+ return obj
+
+def frame_mesh(material):
+ # Continuous square-edged border. Rail joints are pixels, not separate overlapping rails.
+ outer=[(-.186,-.14),(.186,-.14),(.186,.14),(-.186,.14)]
+ inner=[(-.158,-.112),(.158,-.112),(.158,.112),(-.158,.112)]
+ vertices=[(x,-.0155,z) for x,z in outer]+[(x,-.0155,z) for x,z in inner]+[(x,-.0095,z) for x,z in inner]+[(x,.0155,z) for x,z in outer]
+ faces=[]
+ for i in range(4):
+  j=(i+1)%4
+  faces.append((i,j,4+j,4+i))
+ for i in range(4):
+  j=(i+1)%4
+  faces.append((4+i,4+j,8+j,8+i))
+ faces.append((8,9,10,11))
+ faces.append((15,14,13,12))
+ for i in range(4):
+  j=(i+1)%4
+  faces.append((i,12+i,12+j,j))
+ mesh=bpy.data.meshes.new('ContinuousFrame');mesh.from_pydata(vertices,[],faces);mesh.update()
+ mesh.uv_layers.new(name='UVMap');mesh.materials.append(material)
+ obj=bpy.data.objects.new('ContinuousFrame',mesh);bpy.context.collection.objects.link(obj)
+ for p in mesh.polygons:
+  if p.index<4 or p.index==8:uv_project(obj,p,.4)
+  else:uv_color(mesh,p,'FrameBacking' if p.index==9 else 'WalnutWood')
+ select([obj]);bpy.ops.object.mode_set(mode='EDIT');bpy.ops.mesh.select_all(action='SELECT');bpy.ops.mesh.normals_make_consistent(inside=False);bpy.ops.object.mode_set(mode='OBJECT')
+ return obj
 
 def frame():
  name='MoonFrame'
  bpy.ops.wm.open_mainfile(filepath=str(root/'Art/Source'/f'{name}.blend'))
  originals=[o for o in bpy.context.scene.objects if o.type=='MESH']
  original_bounds=scene_bounds(originals)
- image=render_atlas(name,originals,.4)
+ wood=bpy.data.materials.new('WalnutWood');joint=bpy.data.materials.new('WalnutJoint')
+ helpers=[quad('SquareCornerBake',[(-.186,.04,-.14),(.186,.04,-.14),(.186,.04,.14),(-.186,.04,.14)],wood)]
+ for sx in (-1,1):
+  for sz in (-1,1):
+   a=Vector((sx*.158,-.022,sz*.112));b=Vector((sx*.186,-.022,sz*.14))
+   perpendicular=Vector((-(b-a).z,0,(b-a).x)).normalized()*.00045
+   helpers.append(quad('BakedMitreJoint',[a-perpendicular,b-perpendicular,b+perpendicular,a+perpendicular],joint))
+ image=render_atlas(name,originals+helpers,.4)
  material=atlas_material(name,image)
- objects=[]
- box_names=['Backing','MatBoard','LeftRail','RightRail','TopRail','BottomRail','FoldedStand']
- for prefix in box_names:
-  source=next(o for o in originals if o.name.startswith(prefix))
-  lo,hi=bounds(source)
-  if prefix in ('TopRail','BottomRail'):
-   lo.x=bounds(next(o for o in originals if o.name.startswith('LeftRail')))[1].x
-   hi.x=bounds(next(o for o in originals if o.name.startswith('RightRail')))[0].x
-  if prefix in ('Backing','MatBoard'):
-   lo.x=bounds(next(o for o in originals if o.name.startswith('LeftRail')))[1].x
-   hi.x=bounds(next(o for o in originals if o.name.startswith('RightRail')))[0].x
-   lo.z=bounds(next(o for o in originals if o.name.startswith('BottomRail')))[1].z
-   hi.z=bounds(next(o for o in originals if o.name.startswith('TopRail')))[0].z
-  bpy.ops.mesh.primitive_cube_add(size=1,location=(lo+hi)/2)
-  obj=bpy.context.object
-  obj.name=prefix
-  obj.dimensions=hi-lo
-  bpy.ops.object.transform_apply(location=False,rotation=False,scale=True)
-  bevel=obj.modifiers.new('Single bevel segment','BEVEL')
-  bevel.width=.0015
-  bevel.segments=1
-  bpy.ops.object.modifier_apply(modifier=bevel.name)
-  while obj.data.uv_layers: obj.data.uv_layers.remove(obj.data.uv_layers[0])
-  obj.data.uv_layers.new(name='UVMap')
-  key=source.data.materials[0].name.split('.')[0]
-  for p in obj.data.polygons:
-   if p.normal.y<-.9 and prefix!='FoldedStand':uv_project(obj,p,.4)
-   else:uv_color(obj.data,p,key)
-  objects.append(obj)
- sky=next(o for o in originals if o.name.startswith('PictureSky'))
- lo,hi=bounds(sky)
- lo.y-=.0005
- picture=quad('PrintedPicture',[(lo.x,lo.y,lo.z),(hi.x,lo.y,lo.z),(hi.x,lo.y,hi.z),(lo.x,lo.y,hi.z)],material)
- picture.data.uv_layers.new(name='UVMap')
- for p in picture.data.polygons:uv_project(picture,p,.4)
- objects.append(picture)
- # Tiny pins become part of the rail print; their 1.5mm protrusion is deliberately removed.
- # Retain the same silhouette, including the back stand; only the front relief changes.
- for o in originals:bpy.data.objects.remove(o,do_unlink=True)
- return export(name,objects,material,original_bounds)
+ for o in originals+helpers:bpy.data.objects.remove(o,do_unlink=True)
+ body=frame_mesh(material)
+ folded=box('FoldedStand',Vector((-.027,.016,-.135)),Vector((.027,.03,.055)),'WalnutWood',material)
+ held=export(name,[body,folded],material,original_bounds)
+ # Make a second native mesh with the same atlas and origin; both feet meet z=-0.14.
+ held_obj=bpy.context.object
+ bpy.data.objects.remove(held_obj,do_unlink=True)
+ body=frame_mesh(material)
+ tilt=Matrix.Rotation(math.radians(-15),4,'X')
+ for v in body.data.vertices:v.co=tilt@v.co
+ body.data.update()
+ dz=-.14-bounds(body)[0].z
+ for v in body.data.vertices:v.co.z+=dz
+ hinge=tilt@Vector((0,.023,.055));hinge.z+=dz
+ height=hinge.z+.14
+ reach=math.sqrt(.19**2-height**2)
+ foot=Vector((0,hinge.y+reach,-.14))
+ vertices=[]
+ for center in (foot,hinge):
+  vertices.extend([(center.x+x,center.y+y,center.z) for x,y in [(-.027,-.007),(.027,-.007),(.027,.007),(-.027,.007)]])
+ faces=[(3,2,1,0),(4,5,6,7),(0,1,5,4),(1,2,6,5),(2,3,7,6),(3,0,4,7)]
+ mesh=bpy.data.meshes.new('OpenKickstand');mesh.from_pydata(vertices,[],faces);mesh.update();mesh.uv_layers.new(name='UVMap');mesh.materials.append(material)
+ stand=bpy.data.objects.new('OpenKickstand',mesh);bpy.context.collection.objects.link(stand)
+ for p in mesh.polygons:uv_color(mesh,p,'WalnutWood')
+ placed=export('MoonFramePlaced',[body,stand],material,None)
+ placed['backward_tilt_degrees']=15
+ placed['floor_z']=-.14
+ return held,placed
 
-report={'QuotaMug':mug(),'MoonFrame':frame()}
+report={'QuotaMug':mug()}
+report['MoonFrame'],report['MoonFramePlaced']=frame()
 (root/'Art/optimization-report.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
 print('OPTIMIZATION_COMPLETE',json.dumps(report))
