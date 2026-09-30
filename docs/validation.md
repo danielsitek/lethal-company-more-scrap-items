@@ -1,5 +1,14 @@
 # Ověření 2026-09-29
 
+## Portrét Síriuse — 2026-09-30
+
+- Výřez z dodané fotografie byl vložen do obrazové plochy společného atlasu a do ikony rámečku. Obě PNG byla vizuálně zkontrolována.
+- Blender 5.2: oba `.blend` soubory mají zabalený atlas shodný s externím PNG; kontrola `Export-Edited-Model.py --all --validate-only` prošla. Geometrie obou variant zůstala na 40 trojúhelnících.
+- Unity 2022.3.9f1: Windows AssetBundle byl znovu sestaven. Obě varianty mají jednu vykreslovací komponentu, jeden materiál, atlas 512 × 512 ve formátu BC7 a 10 mip úrovní.
+- Plugin .NET Standard 2.1 a instalační ZIP byly sestaveny bez chyb; zobrazovaný název předmětu je `Sírius frame`, interní ID a konfigurace `MoonFrame` zůstávají stejné.
+- Lethal Company v81, místní LAN hra v profilu `MoreScrapItems-Dev`: `TEST_SPAWN_COMPLETE Sírius frame`, první pokus o běžné zvednutí úspěšný (`held=True`) a odložení úspěšné (`released=True`). Při obou zvednutích `FRAME_STATE expected=held; valid=True; mesh=MoonFrame`, při obou odloženích `expected=placed; valid=True; mesh=MoonFramePlaced`. Po položení `FRAME_FLOOR gap=0,0000; rendererCount=1`.
+- Vizuálně potvrzeno: portrét se v ruce vykresluje správně orientovaný, bez chybějící textury, a ikona zobrazuje Síriuse. Ve tmavém osvětlení lodi jsou detaily černé srsti méně zřetelné. Přímý pohled na přední stranu položeného rámečku a druhý multiplayer klient nebyly testovány. Testovací volby vývojového profilu byly vráceny na vypnuto. Před vydáním je třeba znovu připravit `release-inputs/` podle README.
+
 ## Ringhoffer 240 — 2026-09-30
 
 - Jediný motorový vůz podle přiložených fotografií a [fotografií vozu 240 na Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Tram_240_(Prague)); jde o stylizovaný herní model, nikoli přesnou historickou repliku.

@@ -1,13 +1,13 @@
 # More Scrap Items 0.1.0
 
-More Scrap Items adds three original scrap finds to **Lethal Company**: a QUOTA mug, a framed picture of mountains beneath the moon, and a small Ringhoffer 240 tram model. Pick them up, scan them, and bring them back to meet the quota. The picture frame stands at an angle when placed on the floor, with its support leg extended; it folds flat while held. The tram rings when dropped.
+More Scrap Items adds three original scrap finds to **Lethal Company**: a QUOTA mug, a framed portrait of Sírius the dog, and a small Ringhoffer 240 tram model. Pick them up, scan them, and bring them back to meet the quota. The picture frame stands at an angle when placed on the floor, with its support leg extended; it folds flat while held. The tram rings when dropped.
 
 ## Items
 
 | Item | Base value | Default spawn weight |
 | --- | ---: | ---: |
 | QUOTA mug | 50–110 | 25 |
-| Moon frame | 90–180 | 18 |
+| Sírius frame | 90–180 | 18 |
 | Ringhoffer 240 tram | 110–220 | 12 |
 
 The game may adjust scrap values for the current moon. Spawn weights control how often each item is selected relative to other scrap.

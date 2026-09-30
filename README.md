@@ -1,11 +1,11 @@
 # More Scrap Items
 
-A Lethal Company mod by **danielsitek**. It adds the QUOTA mug, a picture frame featuring original artwork of mountains and the moon, and a hand-sized Ringhoffer 240 tram model that rings when dropped.
+A Lethal Company mod by **danielsitek**. It adds the QUOTA mug, a picture frame featuring Sírius the dog, and a hand-sized Ringhoffer 240 tram model that rings when dropped.
 
 | Item | Base value | Spawn weight | Triangles |
 | --- | --- | --- | --- |
 | Quota mug | 50–110 | 25 | 604 |
-| Moon frame | 90–180 | 18 | 40 |
+| Sírius frame | 90–180 | 18 | 40 |
 | Ringhoffer 240 tram | 110–220 | 12 | 2,364 |
 
 When dropped, the frame tilts 15° and unfolds its rear stand. In the player's hand, it is upright with the stand folded. Both variants have 40 triangles and share a texture and material.
@@ -76,7 +76,7 @@ The configuration file is `BepInEx/config/danielsitek.more-scrap-items.cfg`.
 - `[Development] SpawnInShipForTesting`: spawns all three items once for the local host.
 - `[Development] RunHoldingTest`: automatically tests normal game pickup and drop methods; requires test spawning to be enabled.
 
-Leave the development options disabled during normal play. See `docs/validation.md` for completed checks and their limitations.
+Leave the development options disabled during normal play. See the [spawn testing guide](docs/spawn-testing.md) for a short setup procedure and `docs/validation.md` for completed checks and their limitations.
 
 ## Git
 
