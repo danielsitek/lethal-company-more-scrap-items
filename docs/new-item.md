@@ -11,7 +11,7 @@ Příklad používá ID `CopperBell`. Stejné ID použij ve všech názvech soub
 | Atlas 512 × 512 | `Assets/MoreScrapItems/Textures/CopperBellBaseColor.png` |
 | Průhledná ikona | `Assets/MoreScrapItems/Models/CopperBellIcon.png` |
 
-Model má mít jeden mesh, jednu UV mapu a jeden materiál. FBX exportuj s osami Forward `-Z`, Up `Y`. Unity `.meta` soubory ponech v repozitáři. `Export-Edited-Model.py` zatím umí jen stávající modely; nový FBX exportuj ručně nebo skript rozšiř.
+Model má mít jeden mesh pojmenovaný `CopperBell`, jednu UV mapu a jeden materiál s atlasem zabaleným do `.blend`. Externí atlas musí být shodný se zabaleným a mít jméno `CopperBellBaseColor.png`. FBX vyexportuj přes `scripts/Export-Edited-Model.py -- --project-root . --model CopperBell`; skript rozpozná nový model podle názvu `.blend`. Unity `.meta` soubory ponech v repozitáři.
 
 ## 2. Přidej model do Unity
 
@@ -19,7 +19,7 @@ V `Assets/MoreScrapItems/Editor/MoreScrapAssetBuilder.cs`:
 
 - Přidej `MakeModel("CopperBell", 1.0f)`; měřítko uprav podle výsledku ve hře.
 - Do `paths` vlož prefab mezi prefaby a ikonu mezi ikony.
-- Rozšiř validaci z `paths.Take(3)` na `paths.Take(4)`.
+- Rozšiř validaci na všechny prefaby v poli `paths` (aktuálně `paths.Take(4)`), včetně nového předmětu.
 
 ## 3. Zaregistruj předmět
 
