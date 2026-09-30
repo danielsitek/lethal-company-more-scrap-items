@@ -22,13 +22,15 @@ public sealed class Plugin : BaseUnityPlugin
     private readonly List<Item> registered = new();
     private ConfigEntry<bool>? testSpawn;
     private ConfigEntry<bool>? testHolding;
+    private ConfigEntry<string>? holdingTestItem;
     private readonly Dictionary<string, (ConfigEntry<Vector3> position, ConfigEntry<Vector3> rotation)> poses = new();
     private bool testSpawnDone;
 
     private void Awake()
     {
         testSpawn = Config.Bind("Development", "SpawnInShipForTesting", false, "Host only: spawn one of each item near the player once per game launch, for local testing.");
-        testHolding = Config.Bind("Development", "RunHoldingTest", false, "Local development only: use the game's normal grab and discard routines to inspect both items. Requires SpawnInShipForTesting.");
+        testHolding = Config.Bind("Development", "RunHoldingTest", false, "Local development only: use the game's normal grab and discard routines to inspect all items. Requires SpawnInShipForTesting.");
+        holdingTestItem = Config.Bind("Development", "HoldingTestItem", "", "Optional item ID to limit the holding test to one item.");
         var mugRarity = Config.Bind("Spawn", "QuotaMugRarity", 25,
             new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
         var frameRarity = Config.Bind("Spawn", "MoonFrameRarity", 18,
@@ -145,18 +147,24 @@ public sealed class Plugin : BaseUnityPlugin
             Logger.LogInfo("TEST_SPAWN_COMPLETE " + registered[index].itemName);
         }
         if (!testHolding!.Value) yield break;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(6);
         var beginGrab = playerController.GetType().GetMethod("BeginGrabObject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
         foreach (var prop in spawned)
         {
+            if (!string.IsNullOrEmpty(holdingTestItem!.Value) && prop.itemProperties.name != holdingTestItem.Value) continue;
             // Exercise the actual raycast, network RPC, inventory and grab animation.
             var camera = playerController.gameplayCamera.transform;
-            prop.transform.position = camera.position + camera.forward * 1.3f;
-            prop.fallTime = 1; prop.hasHitGround = true;
-            Physics.SyncTransforms();
-            beginGrab.Invoke(playerController, null);
-            yield return new WaitForSeconds(2);
-            bool valid = playerController.currentlyHeldObjectServer == prop && prop.isHeld && prop.parentObject == playerController.localItemHolder;
+            bool valid = false;
+            for (int attempt = 0; attempt < 5 && !valid; attempt++)
+            {
+                prop.transform.position = camera.position + camera.forward * (1.0f + attempt * .1f) - prop.GetComponent<BoxCollider>().center;
+                prop.fallTime = 1; prop.hasHitGround = true;
+                Physics.SyncTransforms();
+                beginGrab.Invoke(playerController, null);
+                yield return new WaitForSeconds(2);
+                valid = playerController.currentlyHeldObjectServer == prop && prop.isHeld && prop.parentObject == playerController.localItemHolder;
+                Logger.LogInfo($"GRAB_ATTEMPT {prop.itemProperties.itemName}: attempt={attempt + 1}; held={valid}");
+            }
             Logger.LogInfo($"HOLD_TEST {prop.itemProperties.itemName}: held={valid}; hand={prop.parentObject?.eulerAngles}; model={prop.transform.eulerAngles}");
             LogFrameState(prop, "held");
             if (!valid) { Logger.LogError("Normal grab failed in holding test."); yield break; }
