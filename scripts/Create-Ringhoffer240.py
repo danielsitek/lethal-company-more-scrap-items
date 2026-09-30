@@ -99,7 +99,7 @@ def fleet_number(axis, fixed, z, chip=11):
                 center = (fixed,offset+p[0],z+p[1]); size = (.0007,.008,.0012) if horizontal else (.0007,.0012,.007)
             box('fleet number 240', center, size, chip)
 
-# Dimensions in metres: couplers define the exact 0.300 m overall length.
+# Build a compact source mesh, then uniformly enlarge it to match the frame in game.
 box('undercarriage', (0,0,.020), (.270,.069,.018), 6)
 box('lower red body', (0,0,.052), (.268,.077,.047), 0)
 box('waist brass band', (0,0,.075), (.269,.079,.003), 10)
@@ -145,7 +145,7 @@ for end in (-1,1):
     rod('headlight lens', (end*.139,0,.055), (end*.140,0,.055), .006, 14, 12)
     fleet_number('y', end*.139, .072)
 
-# A compact diamond pantograph stays visible while the 30 cm model remains hand-sized.
+# A compact diamond pantograph stays visible on the hand-held model.
 for y in (-.020,.020):
     rod('pantograph lower', (-.034,y,.139), (-.008,y,.173), .0017, 6)
     rod('pantograph upper', (-.008,y,.173), (.015,y,.143), .0017, 6)
@@ -162,9 +162,11 @@ bpy.ops.object.join()
 tram = bpy.context.object
 tram.name = 'Ringhoffer240'
 bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+for vertex in tram.data.vertices:
+    vertex.co *= 1.8
 assert len([o for o in bpy.data.objects if o.type == 'MESH']) == 1
 assert len(tram.data.uv_layers) == 1 and len(tram.data.materials) == 1
-assert abs((max(v.co.x for v in tram.data.vertices)-min(v.co.x for v in tram.data.vertices))-.300) < .0001
+assert abs((max(v.co.x for v in tram.data.vertices)-min(v.co.x for v in tram.data.vertices))-.540) < .0001
 bpy.ops.wm.save_as_mainfile(filepath=str(art / 'Ringhoffer240.blend'))
 bpy.ops.export_scene.fbx(filepath=str(models / 'Ringhoffer240.fbx'), use_selection=True,
     object_types={'MESH'}, axis_forward='-Z', axis_up='Y', apply_unit_scale=True,
@@ -176,16 +178,16 @@ bpy.context.scene.world = world
 world.use_nodes = True
 world.node_tree.nodes['Background'].inputs['Color'].default_value = (.35,.39,.42,1)
 world.node_tree.nodes['Background'].inputs['Strength'].default_value = .65
-bpy.ops.object.light_add(type='AREA', location=(-.20,-.24,.35))
-bpy.context.object.data.energy = 30
+bpy.ops.object.light_add(type='AREA', location=(-.36,-.43,.63))
+bpy.context.object.data.energy = 97
 bpy.context.object.data.shape = 'DISK'
-bpy.context.object.data.size = .30
-bpy.ops.object.camera_add(location=(.42,-.42,.29))
+bpy.context.object.data.size = .54
+bpy.ops.object.camera_add(location=(.76,-.76,.52))
 camera = bpy.context.object
-direction = Vector((0,0,.085))-camera.location
+direction = Vector((0,0,.153))-camera.location
 camera.rotation_euler = direction.to_track_quat('-Z','Y').to_euler()
 camera.data.type = 'ORTHO'
-camera.data.ortho_scale = .35
+camera.data.ortho_scale = .63
 bpy.context.scene.camera = camera
 scene = bpy.context.scene
 scene.render.engine = 'CYCLES'

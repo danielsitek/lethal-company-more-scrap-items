@@ -88,8 +88,8 @@ def check_and_export(name):
             if any(abs(low[i]-previous[0][i]) > .002 or abs(high[i]-previous[1][i]) > .002
                    for i in range(3)):
                 raise RuntimeError(f'{name}: bounds changed; review held pose and collision, then use --allow-bounds-change.')
-        elif name == 'Ringhoffer240' and abs((high.x - low.x) - .300) > .002:
-            raise RuntimeError(f'{name}: expected a 0.300 m long model; use --allow-bounds-change after reviewing the size.')
+        elif name == 'Ringhoffer240' and abs((high.x - low.x) - .540) > .002:
+            raise RuntimeError(f'{name}: expected a 0.540 m long model; use --allow-bounds-change after reviewing the size.')
 
     if args.validate_only:
         print(f'MANUAL_MODEL_VALID {name}: {len(mesh.loop_triangles)} triangles, dimensions={tuple(high-low)}')

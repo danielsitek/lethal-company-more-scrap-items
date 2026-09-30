@@ -55,8 +55,8 @@ public static class MoreScrapAssetBuilder
                     throw new Exception(prefab.name + ": expected a 512x512 atlas with mipmaps.");
                 var bounds = renderers[0].bounds;
                 if (prefab.name == "Ringhoffer240" &&
-                    (bounds.size.x < .295f || bounds.size.x > .305f))
-                    throw new Exception($"Ringhoffer240 must be 0.300 m long in Unity; got {bounds.size.x:F4} m.");
+                    (bounds.size.x < .535f || bounds.size.x > .545f))
+                    throw new Exception($"Ringhoffer240 must be 0.540 m long in Unity; got {bounds.size.x:F4} m.");
                 report.Add($"{prefab.name} triangles={triangles} renderers={renderers.Length} materials=1 texture={texture.width}x{texture.height} format={texture.format} mipmaps={texture.mipmapCount} bounds={bounds.size}");
             }
             Directory.CreateDirectory("Builds/MoreScrapItems");
