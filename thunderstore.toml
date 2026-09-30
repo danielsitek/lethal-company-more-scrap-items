@@ -1,0 +1,17 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "danielsitek"
+name = "MoreScrapItems"
+versionNumber = "0.1.0"
+description = "Two original scrap items: a QUOTA mug and a framed moon landscape."
+websiteUrl = "https://github.com/danielsitek/lethal-company-more-scrap-items"
+containsNsfwContent = false
+
+[publish]
+repository = "https://thunderstore.io"
+communities = ["lethal-company"]
+
+[publish.categories]
+lethal-company = ["mods", "items", "bepinex"]

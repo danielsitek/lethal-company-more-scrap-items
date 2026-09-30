@@ -48,6 +48,18 @@ Výstup: `Builds/MoreScrapItems-0.1.0.zip`. Skript vyžaduje již sestavený bun
 
 ZIP lze importovat do r2modmanu jako místní mod s autorem `danielsitek`. Při ruční instalaci zkopíruj jeho složku `BepInEx` do profilu. Po aktualizaci restartuj hru. Pro multiplayer mají všichni používat stejnou verzi modu.
 
+## Publikování na Thunderstore
+
+Jednou vytvoř v týmu `danielsitek` na Thunderstore **Service Account** a jeho token ulož do GitHub repozitáře jako Actions secret `TCLI_AUTH_TOKEN`. Token nepatří do souborů ani do Git historie.
+
+Pro každé vydání:
+
+1. Zvyš verzi v `packaging/manifest.json`, `thunderstore.toml`, `src/MoreScrapItems/Plugin.cs`, `.csproj` a nadpisu `packaging/README.md`.
+2. Po změně modelů sestav Unity AssetBundle; pak spusť `./scripts/Build-Package.ps1` a výsledný ZIP otestuj v r2modmanu.
+3. Odešli commit na GitHub. Vytvoř **GitHub Release** z tohoto commitu se značkou `vX.Y.Z`, přilož `Builds/MoreScrapItems-X.Y.Z.zip` a teprve potom release publikuj.
+
+Workflow `.github/workflows/publish-thunderstore.yml` při publikování běžného releasu ZIP ověří a nahraje pod tým `danielsitek` do komunity Lethal Company. Předběžné releasy přeskočí. GitHub runner znovu nesestavuje mod, protože nemá místní soubory hry ani Unity Editor.
+
 ## Nastavení a testování
 
 Konfigurace je `BepInEx/config/danielsitek.more-scrap-items.cfg`. Při prvním spuštění plugin zkopíruje nastavení ze starého `dansi.more-scrap-items.cfg`, pokud nový soubor ještě neexistuje; starý soubor ponechá jako zálohu. Síťové názvy předmětů zůstávají stejné.

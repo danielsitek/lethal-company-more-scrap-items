@@ -1,0 +1,62 @@
+name: Publish to Thunderstore
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: thunderstore-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Download and validate release ZIP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          mkdir -p release
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "MoreScrapItems-${version}.zip" --dir release
+          python3 scripts/Validate-Release.py \
+            --zip "release/MoreScrapItems-${version}.zip" --tag "$RELEASE_TAG"
+
+      - name: Install .NET for Thunderstore CLI
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+
+      - name: Install Thunderstore CLI
+        run: dotnet tool install tcli --tool-path ./.tools --version 0.2.4
+
+      - name: Publish package
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.TCLI_AUTH_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          if [ -z "$TCLI_AUTH_TOKEN" ]; then
+            echo 'Repository secret TCLI_AUTH_TOKEN is missing.' >&2
+            exit 1
+          fi
+          version="${RELEASE_TAG#v}"
+          ./.tools/tcli publish \
+            --config-path thunderstore.toml \
+            --package-version "$version" \
+            --file "release/MoreScrapItems-${version}.zip"
