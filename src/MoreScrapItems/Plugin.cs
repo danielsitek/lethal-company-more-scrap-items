@@ -77,7 +77,7 @@ public sealed class Plugin : BaseUnityPlugin
         item.verticalOffset = collider.size.y / 2;
         item.positionOffset = id switch {
             "QuotaMug" => new Vector3(.015f,.22f,-.02f),
-            "Ringhoffer240" => new Vector3(.12f,.18f,-.02f),
+            "Ringhoffer240" => new Vector3(.05f,.20f,-.10f),
             _ => new Vector3(.18f,.24f,0)
         };
         // The game's hand anchor has a quarter-turn roll: compensate so each model stays upright.
