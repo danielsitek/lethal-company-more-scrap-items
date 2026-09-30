@@ -103,7 +103,26 @@ def render_atlas(name, objects, extent):
   o.data.materials.clear()
   for mat in mats: o.data.materials.append(mat)
  image = bpy.data.images.load(str(path), check_existing=False)
- image.pack()
+ if name == 'MoonFrame':
+  portrait_path = root / 'Art/Source/SiriusPortrait.png'
+  portrait = bpy.data.images.load(str(portrait_path), check_existing=False)
+  if tuple(portrait.size) != (366, 254):
+   raise RuntimeError(f'Expected 366x254 Sirius portrait: {portrait_path}')
+  pixels = list(image.pixels)
+  source = list(portrait.pixels)
+  for y in range(254):
+   atlas_y = 512 - 129 - 254 + y
+   for x in range(366):
+    dst = (atlas_y * 512 + 73 + x) * 4
+    src = (y * 366 + x) * 4
+    pixels[dst:dst+4] = source[src:src+4]
+  image.pixels[:] = pixels
+  image.filepath_raw = str(path)
+  image.file_format = 'PNG'
+  image.save()
+  bpy.data.images.remove(portrait)
+ atlas_data = path.read_bytes()
+ image.pack(data=atlas_data, data_len=len(atlas_data))
  image.filepath = '//../Assets/MoreScrapItems/Textures/' + path.name
  return image
 
