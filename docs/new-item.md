@@ -32,3 +32,5 @@ V `src/MoreScrapItems/Plugin.cs` přidej v `Awake` četnost a volání `Register
 3. Ve hře ověř texturu, ikonu, skenování, zvednutí, natočení v ruce a polohu na zemi. Pro místní test můžeš zapnout `[Development] SpawnInShipForTesting`; potom jej vypni.
 
 Podrobnosti jsou v [postupu pro assety](asset-workflow.md). V multiplayeru musí mít všichni stejnou verzi DLL i AssetBundle.
+
+Pro veřejné vydání po testu spusť `./scripts/Prepare-Release.ps1 -Version X.Y.Z`, commitni změny včetně `release-inputs/` a odešli tag `vX.Y.Z`. Celý postup je v [README projektu](../README.md#publikování-na-thunderstore).
