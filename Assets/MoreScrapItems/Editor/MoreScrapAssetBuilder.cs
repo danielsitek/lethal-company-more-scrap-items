@@ -30,14 +30,17 @@ public static class MoreScrapAssetBuilder
             MakeModel("QuotaMug", 1.6f);
             MakeModel("MoonFrame", 1.4f);
             MakeModel("MoonFramePlaced", 1.4f, "MoonFrame");
+            MakeModel("Ringhoffer240", 1.0f);
             AssetDatabase.SaveAssets();
             var paths = new[] {
                 Root + "/Prefabs/QuotaMug.prefab", Root + "/Prefabs/MoonFrame.prefab",
                 Root + "/Prefabs/MoonFramePlaced.prefab",
-                Root + "/Models/QuotaMugIcon.png", Root + "/Models/MoonFrameIcon.png"
+                Root + "/Prefabs/Ringhoffer240.prefab",
+                Root + "/Models/QuotaMugIcon.png", Root + "/Models/MoonFrameIcon.png",
+                Root + "/Models/Ringhoffer240Icon.png", Root + "/Audio/Ringhoffer240Bell.wav"
             };
             var report = new List<string>();
-            foreach (var path in paths.Take(3))
+            foreach (var path in paths.Take(4))
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 var meshes = prefab.GetComponentsInChildren<MeshFilter>();
@@ -51,6 +54,9 @@ public static class MoreScrapAssetBuilder
                 if (texture == null || texture.width != 512 || texture.height != 512 || texture.mipmapCount <= 1)
                     throw new Exception(prefab.name + ": expected a 512x512 atlas with mipmaps.");
                 var bounds = renderers[0].bounds;
+                if (prefab.name == "Ringhoffer240" &&
+                    (bounds.size.x < .535f || bounds.size.x > .545f))
+                    throw new Exception($"Ringhoffer240 must be 0.540 m long in Unity; got {bounds.size.x:F4} m.");
                 report.Add($"{prefab.name} triangles={triangles} renderers={renderers.Length} materials=1 texture={texture.width}x{texture.height} format={texture.format} mipmaps={texture.mipmapCount} bounds={bounds.size}");
             }
             Directory.CreateDirectory("Builds/MoreScrapItems");
@@ -80,6 +86,7 @@ public static class MoreScrapAssetBuilder
         modelImporter.importCameras = false;
         modelImporter.importLights = false;
         modelImporter.importBlendShapes = false;
+        modelImporter.globalScale = id == "Ringhoffer240" ? 100f : 1f;
         modelImporter.isReadable = false;
         modelImporter.SaveAndReimport();
         var texturePath = Root + "/Textures/" + textureId + "BaseColor.png";
@@ -144,8 +151,8 @@ public static class MoreScrapAssetBuilder
         }
         material.SetColor("_BaseColor", Color.white);
         material.SetTexture("_BaseColorMap", texture);
-        material.SetFloat("_Metallic", id == "QuotaMug" ? .12f : 0);
-        material.SetFloat("_Smoothness", id == "QuotaMug" ? .65f : .3f);
+        material.SetFloat("_Metallic", id == "QuotaMug" ? .12f : id == "Ringhoffer240" ? .08f : 0);
+        material.SetFloat("_Smoothness", id == "QuotaMug" ? .65f : id == "Ringhoffer240" ? .4f : .3f);
         material.SetFloat("_DoubleSidedEnable", 0);
         material.SetFloat("_CullMode", 2);
         material.SetFloat("_CullModeForward", 2);

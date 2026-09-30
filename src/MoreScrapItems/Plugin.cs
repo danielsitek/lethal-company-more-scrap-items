@@ -22,23 +22,28 @@ public sealed class Plugin : BaseUnityPlugin
     private readonly List<Item> registered = new();
     private ConfigEntry<bool>? testSpawn;
     private ConfigEntry<bool>? testHolding;
+    private ConfigEntry<string>? holdingTestItem;
     private readonly Dictionary<string, (ConfigEntry<Vector3> position, ConfigEntry<Vector3> rotation)> poses = new();
     private bool testSpawnDone;
 
     private void Awake()
     {
         testSpawn = Config.Bind("Development", "SpawnInShipForTesting", false, "Host only: spawn one of each item near the player once per game launch, for local testing.");
-        testHolding = Config.Bind("Development", "RunHoldingTest", false, "Local development only: use the game's normal grab and discard routines to inspect both items. Requires SpawnInShipForTesting.");
+        testHolding = Config.Bind("Development", "RunHoldingTest", false, "Local development only: use the game's normal grab and discard routines to inspect all items. Requires SpawnInShipForTesting.");
+        holdingTestItem = Config.Bind("Development", "HoldingTestItem", "", "Optional item ID to limit the holding test to one item.");
         var mugRarity = Config.Bind("Spawn", "QuotaMugRarity", 25,
             new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
         var frameRarity = Config.Bind("Spawn", "MoonFrameRarity", 18,
+            new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
+        var tramRarity = Config.Bind("Spawn", "Ringhoffer240Rarity", 12,
             new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
         var bundlePath = Path.Combine(Path.GetDirectoryName(Info.Location)!, "morescrapassets");
         assets = AssetBundle.LoadFromFile(bundlePath);
         if (assets == null) throw new InvalidOperationException("Cannot load More Scrap Items asset bundle: " + bundlePath);
         Register("QuotaMug", "Quota mug", 71001, 50, 110, 1.03f, mugRarity.Value);
         Register("MoonFrame", "Moon frame", 71002, 90, 180, 1.06f, frameRarity.Value);
-        Logger.LogInfo($"More Scrap Items {Version}: Quota mug and Moon frame registered.");
+        Register("Ringhoffer240", "Ringhoffer 240 tram", 71003, 110, 220, 1.08f, tramRarity.Value);
+        Logger.LogInfo($"More Scrap Items {Version}: Quota mug, Moon frame and Ringhoffer 240 tram registered.");
         if (testSpawn.Value) On.StartOfRound.Start += StartRoundForTesting;
     }
 
@@ -72,7 +77,11 @@ public sealed class Plugin : BaseUnityPlugin
         item.grabSFX = sound; item.dropSFX = sound; item.pocketSFX = sound;
         item.restingRotation = Vector3.zero;
         item.verticalOffset = collider.size.y / 2;
-        item.positionOffset = id == "QuotaMug" ? new Vector3(.015f,.22f,-.02f) : new Vector3(.18f,.24f,0);
+        item.positionOffset = id switch {
+            "QuotaMug" => new Vector3(.015f,.22f,-.02f),
+            "Ringhoffer240" => new Vector3(.05f,.20f,-.10f),
+            _ => new Vector3(.18f,.24f,0)
+        };
         // The game's hand anchor has a quarter-turn roll: compensate so each model stays upright.
         item.rotationOffset = new Vector3(0,180,90);
         var position = Config.Bind("Holding", id + "Position", item.positionOffset, "Position relative to the game's hand anchor, in metres.");
@@ -80,6 +89,15 @@ public sealed class Plugin : BaseUnityPlugin
         poses[id] = (position, rotation);
         item.positionOffset = position.Value; item.rotationOffset = rotation.Value;
         item.itemIcon = assets.LoadAsset<Sprite>($"Assets/MoreScrapItems/Models/{id}Icon.png");
+        if (id == "Ringhoffer240")
+        {
+            var bell = assets.LoadAsset<AudioClip>("Assets/MoreScrapItems/Audio/Ringhoffer240Bell.wav");
+            if (bell == null) throw new InvalidOperationException("Missing Ringhoffer240 bell; update DLL and asset bundle together.");
+            item.dropSFX = bell;
+            item.clinkAudios = new[] { bell };
+            // The game lifts discarded props approximately 4 cm above their resting offset.
+            item.verticalOffset = collider.size.y / 2 - collider.center.y - .04f;
+        }
         item.spawnPrefab = prefab;
         var prop = prefab.AddComponent<PhysicsProp>();
         prop.itemProperties = item; prop.grabbable = true; prop.grabbableToEnemies = true;
@@ -129,18 +147,24 @@ public sealed class Plugin : BaseUnityPlugin
             Logger.LogInfo("TEST_SPAWN_COMPLETE " + registered[index].itemName);
         }
         if (!testHolding!.Value) yield break;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(6);
         var beginGrab = playerController.GetType().GetMethod("BeginGrabObject", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!;
         foreach (var prop in spawned)
         {
+            if (!string.IsNullOrEmpty(holdingTestItem!.Value) && prop.itemProperties.name != holdingTestItem.Value) continue;
             // Exercise the actual raycast, network RPC, inventory and grab animation.
             var camera = playerController.gameplayCamera.transform;
-            prop.transform.position = camera.position + camera.forward * 1.3f;
-            prop.fallTime = 1; prop.hasHitGround = true;
-            Physics.SyncTransforms();
-            beginGrab.Invoke(playerController, null);
-            yield return new WaitForSeconds(2);
-            bool valid = playerController.currentlyHeldObjectServer == prop && prop.isHeld && prop.parentObject == playerController.localItemHolder;
+            bool valid = false;
+            for (int attempt = 0; attempt < 5 && !valid; attempt++)
+            {
+                prop.transform.position = camera.position + camera.forward * (1.0f + attempt * .1f) - prop.GetComponent<BoxCollider>().center;
+                prop.fallTime = 1; prop.hasHitGround = true;
+                Physics.SyncTransforms();
+                beginGrab.Invoke(playerController, null);
+                yield return new WaitForSeconds(2);
+                valid = playerController.currentlyHeldObjectServer == prop && prop.isHeld && prop.parentObject == playerController.localItemHolder;
+                Logger.LogInfo($"GRAB_ATTEMPT {prop.itemProperties.itemName}: attempt={attempt + 1}; held={valid}");
+            }
             Logger.LogInfo($"HOLD_TEST {prop.itemProperties.itemName}: held={valid}; hand={prop.parentObject?.eulerAngles}; model={prop.transform.eulerAngles}");
             LogFrameState(prop, "held");
             if (!valid) { Logger.LogError("Normal grab failed in holding test."); yield break; }
@@ -153,9 +177,21 @@ public sealed class Plugin : BaseUnityPlugin
                 yield return new WaitForSeconds(1);
             }
             playerController.DiscardHeldObject();
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(.7f);
+            if (prop.itemProperties.name == "Ringhoffer240")
+                Logger.LogInfo($"TRAM_DROP_AUDIO clip={prop.itemProperties.dropSFX?.name}; playing={prop.GetComponent<AudioSource>().isPlaying}");
+            yield return new WaitForSeconds(1.3f);
             Logger.LogInfo($"DROP_TEST {prop.itemProperties.itemName}: released={!prop.isHeld && prop.parentObject == null}");
             LogFrameState(prop, "placed");
+            if (prop.itemProperties.name == "Ringhoffer240")
+            {
+                var bounds = prop.mainObjectRenderer.bounds;
+                if (Physics.Raycast(bounds.center + Vector3.up * .5f, Vector3.down, out var floor, 2,
+                    LayerMask.GetMask("Room", "Colliders"), QueryTriggerInteraction.Ignore))
+                    Logger.LogInfo($"TRAM_FLOOR gap={bounds.min.y - floor.point.y:F4}; bounds={bounds.size}");
+                else
+                    Logger.LogWarning("TRAM_FLOOR no floor raycast hit.");
+            }
             if (prop.GetComponent<FramePresentation>() != null)
             {
                 yield return new WaitForSeconds(8);

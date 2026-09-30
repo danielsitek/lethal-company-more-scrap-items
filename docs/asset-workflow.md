@@ -3,7 +3,7 @@
 ## Úprava existujícího modelu
 
 1. Otevři příslušný `.blend` v `Art/`. Obsahuje optimalizovaný mesh, UV mapu a zabalený texturový atlas. Zachovej střed modelu, měřítko a osy.
-2. Textury jsou v `Assets/MoreScrapItems/Textures`: `QuotaMugBaseColor.png` a `MoonFrameBaseColor.png`. Horní část obsahuje nápis nebo obrázek, spodní pás obsahuje barevné vzorky pro ostatní povrchy. Při ruční úpravě atlasu zachovej rozmístění vzorků i UV mapování.
+2. Textury jsou v `Assets/MoreScrapItems/Textures`: `QuotaMugBaseColor.png`, `MoonFrameBaseColor.png` a `Ringhoffer240BaseColor.png`. Rámeček má nahoře nápis či obrázek a dole barevné vzorky; tramvaj používá atlas barevných polí. Při ruční úpravě atlasu zachovej UV mapování. Ulož změnu jak do externího PNG, tak do zabalené textury v `.blend`.
 3. Po ruční změně uloženého `.blend` spusť níže uvedený exportní příkaz. Zachová upravený mesh a přepíše odpovídající FBX v `Assets/MoreScrapItems/Models`; stávající `.meta` ponechá. Export používá jednotky metrů, forward `-Z` a up `Y`.
 4. V Unity znovu sestav bundle a poté instalační ZIP podle hlavního README.
 5. V čistém vývojovém profilu ověř velikost, materiály, skenování, zvednutí, úchop a odložení. Změna geometrie může vyžadovat nové hodnoty `[Holding]` a klidové rotace.
@@ -14,9 +14,11 @@ Pro upravený hrnek spusť z kořene projektu:
 & 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python scripts/Export-Edited-Model.py -- --project-root . --model QuotaMug
 ```
 
-Stejný skript přijímá `MoonFrame` a `MoonFramePlaced`. Před exportem kontroluje jeden mesh, jednu UV mapu a materiál, shodu zabalené a externí textury a původní rozměry potřebné pro herní úchop. Pokud rozměry úmyslně změníš, uprav nejprve úchop a kolizi. Poté sestav Unity bundle a instalační ZIP.
+Pro tramvaj změň `--model` na `Ringhoffer240`. Skript přijímá ID libovolného `Art/<ID>.blend` a volba `--all` postupně vyexportuje všechny modely. `MoonFrame` a `MoonFramePlaced` jsou dva samostatné Blender soubory pro jeden předmět; sdílejí atlas. Volba `--all --validate-only` pouze ověří zdroje bez zápisu FBX.
 
-`Optimize-Models.py` používá původní soubory v `Art/Source` a přepisuje optimalizované `.blend`; na ručně upravený hrnek ho nespouštěj, pokud chceš své změny zachovat.
+Před exportem skript kontroluje jeden mesh, jednu UV mapu a materiál, shodu zabalené a externí textury a známé rozměry potřebné pro herní úchop. Pokud rozměry úmyslně změníš, nejprve zkontroluj úchop a kolizi a pak použij `--allow-bounds-change`. Skript exportuje **FBX**, nepřepisuje `.blend`, atlas ani ikonu. Změněné PNG a ikonu ulož zvlášť; po exportu sestav Unity bundle a instalační ZIP.
+
+`Optimize-Models.py` používá původní soubory v `Art/Source` a přepisuje optimalizované `.blend` hrnku a rámečku; po ručních úpravách ho nespouštěj. `Create-Ringhoffer240.py` přepisuje tramvajový `.blend`, FBX, atlas i ikonu. Pro ruční změny tramvaje používej pouze `Export-Edited-Model.py`.
 
 ## Textury a optimalizace
 
