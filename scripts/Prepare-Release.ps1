@@ -8,6 +8,19 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
+$bundle = Join-Path $root 'Builds/MoreScrapItems/morescrapassets'
+if (-not (Test-Path -LiteralPath $bundle)) { throw 'Build the Unity AssetBundle before preparing a release.' }
+$bundleTime = (Get-Item -LiteralPath $bundle).LastWriteTimeUtc
+Push-Location $root
+try {
+    $unityAssets = & git ls-files -z -- Assets/MoreScrapItems
+    if ($LASTEXITCODE -ne 0) { throw 'Could not list Unity assets.' }
+    foreach ($relative in $unityAssets.Split([char]0, [StringSplitOptions]::RemoveEmptyEntries)) {
+        if ((Get-Item -LiteralPath (Join-Path $root $relative)).LastWriteTimeUtc -gt $bundleTime) {
+            throw "Unity asset changed after the bundle was built: $relative"
+        }
+    }
+} finally { Pop-Location }
 
 function Replace-One([string]$relative, [string]$pattern, [string]$replacement) {
     $path = Join-Path $root $relative
@@ -34,7 +47,6 @@ if ($ProfileRoot) { $buildOptions.ProfileRoot = $ProfileRoot }
 & (Join-Path $PSScriptRoot 'Build-Package.ps1') @buildOptions
 
 $dll = Join-Path $root 'src/MoreScrapItems/bin/Release/netstandard2.1/MoreScrapItems.dll'
-$bundle = Join-Path $root 'Builds/MoreScrapItems/morescrapassets'
 $dllVersion = [Reflection.AssemblyName]::GetAssemblyName($dll).Version
 if ($dllVersion.Major -ne [int]($Version.Split('.')[0]) -or
     $dllVersion.Minor -ne [int]($Version.Split('.')[1]) -or
