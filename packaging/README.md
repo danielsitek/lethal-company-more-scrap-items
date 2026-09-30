@@ -1,12 +1,12 @@
 # More Scrap Items 0.1.0
 
-Autor: **danielsitek** — https://github.com/danielsitek
+Autor: **danielsitek** — https://github.com/danielsitek/lethal-company-more-scrap-items
 
 Dva původní scrap předměty: smaltovaný hrnek QUOTA a dřevěný rámeček s obrázkem hor a měsíce. Základní hodnoty jsou 50–110 a 90–180; hra je může upravit podle měsíce.
 
 ## Instalace
 
-Importuj ZIP jako místní mod do r2modmanu s autorem `danielsitek`, nebo zkopíruj jeho složku `BepInEx` do profilu. Vyžaduje BepInEx 5.4.2305 a LethalLib 1.2.0 včetně závislostí. Spusť Start modded; po aktualizaci restartuj hru. V multiplayeru mají všichni používat stejnou verzi modu.
+V r2modmanu pro Lethal Company vyhledej **MoreScrapItems** od **danielsitek** a nainstaluj jej. Manažer stáhne i BepInEx a LethalLib uvedené v závislostech. Hru spusť přes **Start modded**; po aktualizaci ji restartuj. V multiplayeru mají všichni používat stejnou verzi modu. Při ruční instalaci zkopíruj složku `BepInEx` z balíčku do herního profilu.
 
 ## Konfigurace
 
