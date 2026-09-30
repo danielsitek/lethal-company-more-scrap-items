@@ -1,84 +1,84 @@
 # More Scrap Items
 
-Mod pro Lethal Company od **danielsitek**. Přidává hrnek QUOTA a rámeček s původním obrázkem hor a měsíce.
+A Lethal Company mod by **danielsitek**. It adds the QUOTA mug and a picture frame featuring original artwork of mountains and the moon.
 
-| Předmět | Základní hodnota | Četnost | Trojúhelníky |
+| Item | Base value | Spawn weight | Triangles |
 | --- | --- | --- | --- |
 | Quota mug | 50–110 | 25 | 604 |
 | Moon frame | 90–180 | 18 | 40 |
 
-Rámeček se při odložení nakloní o 15° a vyklopí podpěru; v ruce je rovný se složenou podpěrou. Obě varianty mají 40 trojúhelníků a sdílejí texturu i materiál.
+When dropped, the frame tilts 15° and unfolds its rear stand. In the player's hand, it is upright with the stand folded. Both variants have 40 triangles and share a texture and material.
 
-Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při výběru scrapu.
+The game may adjust an item's value depending on the moon. Spawn weight is a relative weight used when selecting scrap.
 
-## Struktura
+## Project layout
 
-- `Art/`: optimalizované Blender zdroje; původní modely jsou v `Art/Source`.
-- `Assets/MoreScrapItems/`: FBX, ikony, materiály, prefaby a Unity nástroje.
-- `Assets/HDRPDefaultResources/`: HDRP nastavení včetně zachovaných profilů šablony.
+- `Art/`: optimized Blender sources; original models are in `Art/Source`.
+- `Assets/MoreScrapItems/`: FBX files, icons, materials, prefabs, and Unity tools.
+- `Assets/HDRPDefaultResources/`: HDRP settings, including preserved template profiles.
 - `src/MoreScrapItems/`: BepInEx plugin.
-- `packaging/`: metadata, ikona a README instalačního balíčku.
-- `scripts/Build-Package.ps1`: sestavení pluginu a instalačního ZIPu.
-- `release-inputs/`: verzovaná DLL a AssetBundle připravené pro vydání; neobsahuje herní DLL.
-- `scripts/Optimize-Models.py`: znovuvytvoření modelů z původních zdrojů; přepíše ruční úpravy optimalizovaných `.blend`.
-- `scripts/Export-Edited-Model.py`: export uložených ručně upravených `.blend` do herního FBX.
-- `docs/`: [návod pro nový předmět](docs/new-item.md), postup úprav a výsledky ověření.
+- `packaging/`: package metadata, icon, and player-facing README.
+- `scripts/Build-Package.ps1`: builds the plugin and installation ZIP.
+- `release-inputs/`: versioned plugin DLL and AssetBundle prepared for release; no game DLLs.
+- `scripts/Optimize-Models.py`: regenerates models from original sources; overwrites manual edits in optimized `.blend` files.
+- `scripts/Export-Edited-Model.py`: exports saved, manually edited `.blend` files to game-ready FBX files.
+- `docs/`: [new-item guide](docs/new-item.md), asset workflow, and validation results.
 
-## Vývojové prostředí
+## Development setup
 
-Unity **2022.3.9f1**, HDRP **14.0.8**, .NET SDK **8** a Blender. Použij lokální instalaci Lethal Company a r2modman profil s BepInEx **5.4.2305**, LethalLib **1.2.0** a jeho závislostmi. Profil nejprve jednou spusť přes Start modded, aby vznikla knihovna MMHOOK.
+Use Unity **2022.3.9f1**, HDRP **14.0.8**, .NET SDK **8**, and Blender. You also need a local Lethal Company installation and an r2modman profile with BepInEx **5.4.2305**, LethalLib **1.2.0**, and its dependencies. Launch the profile once with **Start modded** to generate the MMHOOK library.
 
-Otevři kořen repozitáře v Unity Hubu. Unity obnoví balíčky podle `Packages/packages-lock.json`. Projekt sestavuje modelový AssetBundle; kompletní extrakce hry Project Patcherem není potřeba. Zachované balíčky patcheru jsou volitelné vývojové nástroje.
+Open the repository root in Unity Hub. Unity restores packages from `Packages/packages-lock.json`. The project builds an AssetBundle for the models; a full game extraction with Project Patcher is unnecessary. The retained patcher packages are optional development tools.
 
-Plugin standardně hledá hru ve složce Steam v Program Files (x86) a profil `lethal_01` v aktuálním uživatelském AppData. Pro jiné cesty zkopíruj `Build.local.props.example` na `Build.local.props` a uprav `GameManaged` a `ProfileRoot`. Tento místní soubor se necommituje.
+By default, the plugin build looks for the game in Steam's Program Files (x86) directory and the `lethal_01` profile in the current user's AppData. For other paths, copy `Build.local.props.example` to `Build.local.props` and set `GameManaged` and `ProfileRoot`. Do not commit this local file.
 
 ```powershell
 dotnet build src/MoreScrapItems/MoreScrapItems.csproj -c Release
 ```
 
-## Sestavení modu
+## Build the mod
 
-1. V Unity vyber **Tools → More Scrap Items → Build models and scrap bundle**. Výstupem je `Builds/MoreScrapItems/morescrapassets`.
-2. V PowerShellu v kořeni repozitáře spusť:
+1. In Unity, select **Tools → More Scrap Items → Build models and scrap bundle**. This produces `Builds/MoreScrapItems/morescrapassets`.
+2. From the repository root in PowerShell, run:
 
 ```powershell
 ./scripts/Build-Package.ps1
 ```
 
-Výstup: `Builds/MoreScrapItems-0.1.0.zip`. Skript vyžaduje již sestavený bundle; při změně modelů ho nejprve znovu vytvoř v Unity. Sestavení nepřepisuje nainstalovaný mod a nespouští hru.
+The result is `Builds/MoreScrapItems-0.1.0.zip`. The script requires an existing bundle; rebuild it in Unity after changing models. Building does not overwrite an installed mod or launch the game.
 
-ZIP lze importovat do r2modmanu jako místní mod s autorem `danielsitek`. Při ruční instalaci zkopíruj jeho složku `BepInEx` do profilu. Po aktualizaci restartuj hru. Pro multiplayer mají všichni používat stejnou verzi modu.
+You can import the ZIP into r2modman as a local mod by `danielsitek`. For manual installation, copy its `BepInEx` directory into the profile. Restart the game after updating. All multiplayer players should use the same mod version.
 
-## Publikování na Thunderstore
+## Publish to Thunderstore
 
-Token Thunderstore Service Account týmu `danielsitek` ulož do GitHub Actions secretu `TCLI_AUTH_TOKEN`. Žádný vlastní runner ani zapnutý domácí počítač při vydání nejsou potřeba.
+Store the `danielsitek` team's Thunderstore Service Account token in the GitHub Actions secret `TCLI_AUTH_TOKEN`. Publishing uses a GitHub-hosted runner, so your own computer does not need to be running at release time.
 
-Před vydáním nové verze:
+Before releasing a new version:
 
-1. Po změně modelů vytvoř AssetBundle v Unity přes **Tools → More Scrap Items → Build models and scrap bundle**.
-2. Na Windows počítači s hrou a r2modman profilem spusť `./scripts/Prepare-Release.ps1 -Version 0.1.0`. Skript nastaví verzi, sestaví plugin, zkopíruje DLL i bundle do `release-inputs/` a uloží otisky zdrojů. Vygenerovaný ZIP můžeš nejprve otestovat v r2modmanu.
-3. Commitni a pushni zdroje, verzi i `release-inputs/`. Potom můžeš z libovolného počítače odeslat tag `v0.1.0` na tento commit:
+1. If models have changed, build the AssetBundle in Unity with **Tools → More Scrap Items → Build models and scrap bundle**.
+2. On a Windows computer with the game and r2modman profile, run `./scripts/Prepare-Release.ps1 -Version 0.1.0`. The script sets the version, builds the plugin, copies the DLL and bundle into `release-inputs/`, and records source hashes. You can test the generated ZIP in r2modman first.
+3. Commit and push the sources, version, and `release-inputs/`. Then, from any computer, push the `v0.1.0` tag on that commit:
 
 ```powershell
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-Workflow `.github/workflows/publish-thunderstore.yml` běží na GitHubem provozovaném runneru. Ověří, že vydávané binární soubory odpovídají commitu a tagu, vytvoří ZIP a GitHub Release a nahraje stejný ZIP na Thunderstore. Když po přípravě změníš kód nebo Unity assety, kontrola vydání zastaví; znovu spusť přípravný skript. Stejnou verzi nelze na Thunderstore zveřejnit podruhé. Stav sleduj na kartě **Actions**.
+The `.github/workflows/publish-thunderstore.yml` workflow checks that the staged binaries match the commit and tag, creates the ZIP and GitHub Release, and uploads the same ZIP to Thunderstore. If you change code or Unity assets after preparation, the release check stops; rerun the preparation script. Thunderstore does not allow publishing the same version twice. Follow progress on the **Actions** tab.
 
-## Nastavení a testování
+## Configuration and testing
 
-Konfigurace je `BepInEx/config/danielsitek.more-scrap-items.cfg`.
+The configuration file is `BepInEx/config/danielsitek.more-scrap-items.cfg`.
 
-- `[Spawn]`: četnost předmětů; 0 vypne daný předmět.
-- `[Holding]`: pozice a rotace vůči hernímu úchopu.
-- `[Development] SpawnInShipForTesting`: jednorázové vytvoření obou předmětů u místního hostitele.
-- `[Development] RunHoldingTest`: automatický test běžných herních metod zvednutí a odložení; vyžaduje zapnuté testovací vytváření předmětů.
+- `[Spawn]`: item spawn weights; 0 disables an item.
+- `[Holding]`: position and rotation relative to the in-game grip.
+- `[Development] SpawnInShipForTesting`: spawns both items once for the local host.
+- `[Development] RunHoldingTest`: automatically tests normal game pickup and drop methods; requires test spawning to be enabled.
 
-Vývojové volby při běžném hraní nech vypnuté. Výsledky skutečně provedených kontrol a jejich omezení jsou v `docs/validation.md`.
+Leave the development options disabled during normal play. See `docs/validation.md` for completed checks and their limitations.
 
 ## Git
 
-Verzujeme vlastní zdroje, modely, Unity `.meta` soubory, nastavení projektu, zámek balíčků a připravené binární soubory modu v `release-inputs/`. Lokální a herní DLL, cache, buildy a nepoužitá ukázková scéna šablony jsou ignorované. Vlastní projekt pluginu `.csproj` se verzovat musí.
+Track original sources, models, Unity `.meta` files, project settings, the package lock, and prepared mod binaries in `release-inputs/`. Local and game DLLs, caches, builds, and the unused template sample scene are ignored. The plugin's `.csproj` file must be tracked.
 
-Při přesouvání Unity assetu přesuň také jeho `.meta` soubor. [GitHub repozitář](https://github.com/danielsitek/lethal-company-more-scrap-items) je nastaven jako `origin`. Licenci pro případné veřejné zveřejnění je potřeba zvolit samostatně.
+When moving a Unity asset, move its `.meta` file too. The [GitHub repository](https://github.com/danielsitek/lethal-company-more-scrap-items) is configured as `origin`. A license for public reuse still needs to be selected separately.
