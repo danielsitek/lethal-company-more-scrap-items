@@ -177,9 +177,21 @@ public sealed class Plugin : BaseUnityPlugin
                 yield return new WaitForSeconds(1);
             }
             playerController.DiscardHeldObject();
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(.7f);
+            if (prop.itemProperties.name == "Ringhoffer240")
+                Logger.LogInfo($"TRAM_DROP_AUDIO clip={prop.itemProperties.dropSFX?.name}; playing={prop.GetComponent<AudioSource>().isPlaying}");
+            yield return new WaitForSeconds(1.3f);
             Logger.LogInfo($"DROP_TEST {prop.itemProperties.itemName}: released={!prop.isHeld && prop.parentObject == null}");
             LogFrameState(prop, "placed");
+            if (prop.itemProperties.name == "Ringhoffer240")
+            {
+                var bounds = prop.mainObjectRenderer.bounds;
+                if (Physics.Raycast(bounds.center + Vector3.up * .5f, Vector3.down, out var floor, 2,
+                    LayerMask.GetMask("Room", "Colliders"), QueryTriggerInteraction.Ignore))
+                    Logger.LogInfo($"TRAM_FLOOR gap={bounds.min.y - floor.point.y:F4}; bounds={bounds.size}");
+                else
+                    Logger.LogWarning("TRAM_FLOOR no floor raycast hit.");
+            }
             if (prop.GetComponent<FramePresentation>() != null)
             {
                 yield return new WaitForSeconds(8);
