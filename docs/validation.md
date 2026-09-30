@@ -1,5 +1,13 @@
 # Ověření 2026-09-29
 
+## Ringhoffer 240 — 2026-09-30
+
+- Jediný motorový vůz podle přiložených fotografií a [fotografií vozu 240 na Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Tram_240_(Prague)); jde o stylizovaný herní model, nikoli přesnou historickou repliku.
+- Blender 5.2: `Art/Ringhoffer240.blend`, FBX, 512 × 512 atlas a průhledná ikona vytvořeny skriptem `scripts/Create-Ringhoffer240.py`. Zdroj má přesně 0,300 m na délku, jeden mesh, jednu UV mapu a jeden materiál. Zvonek WAV je původní syntéza ze `scripts/Create-RinghofferBell.py`.
+- Unity 2022.3.9f1: AssetBundle sestaven. Prefab má 0,30 × 0,17 × 0,11 m, 2 364 importovaných trojúhelníků, jeden renderer a materiál, atlas BC7 s 10 mip úrovněmi. Builder nyní odmítne chybnou délku tramvaje.
+- Plugin .NET Standard 2.1: Release build bez chyb a varování. Instalační ZIP obsahuje DLL a aktualizovaný AssetBundle. Registrace má samostatné ID 71003, konfigurovatelnou četnost a zvonek jako `dropSFX`.
+- Ve hře zatím neověřeno: skutečný úchop, výška položení, slyšitelnost zvonku ani multiplayer. Před vydáním ověřit místním vývojovým spawnem a poté znovu připravit `release-inputs/` postupem v README. Žádný release tag nebyl vytvořen.
+
 More Scrap Items 0.1.0 — ověření 2026-09-29
 Blender 5.2.2: oba modely, zdroje BLEND, export FBX, ikony a náhled vytvořeny.
 Unity 2022.3.9f1 HDRP: export AssetBundle s typovými informacemi a vestavěnými moduly.

@@ -33,12 +33,15 @@ public sealed class Plugin : BaseUnityPlugin
             new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
         var frameRarity = Config.Bind("Spawn", "MoonFrameRarity", 18,
             new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
+        var tramRarity = Config.Bind("Spawn", "Ringhoffer240Rarity", 12,
+            new ConfigDescription("Relative spawn weight on all moons. Set 0 to disable.", new AcceptableValueRange<int>(0, 1000)));
         var bundlePath = Path.Combine(Path.GetDirectoryName(Info.Location)!, "morescrapassets");
         assets = AssetBundle.LoadFromFile(bundlePath);
         if (assets == null) throw new InvalidOperationException("Cannot load More Scrap Items asset bundle: " + bundlePath);
         Register("QuotaMug", "Quota mug", 71001, 50, 110, 1.03f, mugRarity.Value);
         Register("MoonFrame", "Moon frame", 71002, 90, 180, 1.06f, frameRarity.Value);
-        Logger.LogInfo($"More Scrap Items {Version}: Quota mug and Moon frame registered.");
+        Register("Ringhoffer240", "Ringhoffer 240 tram", 71003, 110, 220, 1.08f, tramRarity.Value);
+        Logger.LogInfo($"More Scrap Items {Version}: Quota mug, Moon frame and Ringhoffer 240 tram registered.");
         if (testSpawn.Value) On.StartOfRound.Start += StartRoundForTesting;
     }
 
@@ -72,7 +75,11 @@ public sealed class Plugin : BaseUnityPlugin
         item.grabSFX = sound; item.dropSFX = sound; item.pocketSFX = sound;
         item.restingRotation = Vector3.zero;
         item.verticalOffset = collider.size.y / 2;
-        item.positionOffset = id == "QuotaMug" ? new Vector3(.015f,.22f,-.02f) : new Vector3(.18f,.24f,0);
+        item.positionOffset = id switch {
+            "QuotaMug" => new Vector3(.015f,.22f,-.02f),
+            "Ringhoffer240" => new Vector3(.12f,.18f,-.02f),
+            _ => new Vector3(.18f,.24f,0)
+        };
         // The game's hand anchor has a quarter-turn roll: compensate so each model stays upright.
         item.rotationOffset = new Vector3(0,180,90);
         var position = Config.Bind("Holding", id + "Position", item.positionOffset, "Position relative to the game's hand anchor, in metres.");
@@ -80,6 +87,15 @@ public sealed class Plugin : BaseUnityPlugin
         poses[id] = (position, rotation);
         item.positionOffset = position.Value; item.rotationOffset = rotation.Value;
         item.itemIcon = assets.LoadAsset<Sprite>($"Assets/MoreScrapItems/Models/{id}Icon.png");
+        if (id == "Ringhoffer240")
+        {
+            var bell = assets.LoadAsset<AudioClip>("Assets/MoreScrapItems/Audio/Ringhoffer240Bell.wav");
+            if (bell == null) throw new InvalidOperationException("Missing Ringhoffer240 bell; update DLL and asset bundle together.");
+            item.dropSFX = bell;
+            item.clinkAudios = new[] { bell };
+            // The game lifts discarded props approximately 4 cm above their resting offset.
+            item.verticalOffset = collider.size.y / 2 - collider.center.y - .04f;
+        }
         item.spawnPrefab = prefab;
         var prop = prefab.AddComponent<PhysicsProp>();
         prop.itemProperties = item; prop.grabbable = true; prop.grabbableToEnemies = true;
