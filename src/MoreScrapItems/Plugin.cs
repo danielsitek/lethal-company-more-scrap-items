@@ -40,7 +40,7 @@ public sealed class Plugin : BaseUnityPlugin
         if (assets == null) throw new InvalidOperationException("Cannot load More Scrap Items asset bundle: " + bundlePath);
         Register("QuotaMug", "Quota mug", 71001, 50, 110, 1.03f, mugRarity.Value);
         Register("MoonFrame", "Moon frame", 71002, 90, 180, 1.06f, frameRarity.Value);
-        Logger.LogInfo("More Scrap Items 0.1.0: Quota mug and Moon frame registered.");
+        Logger.LogInfo($"More Scrap Items {Version}: Quota mug and Moon frame registered.");
         if (testSpawn.Value) On.StartOfRound.Start += StartRoundForTesting;
     }
 

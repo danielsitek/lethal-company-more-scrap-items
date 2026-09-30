@@ -38,6 +38,7 @@
 /Assets/UPPatcherUserSettings.asset*
 /Assets/README.md*
 *.dll
+!/release-inputs/MoreScrapItems.dll
 *.dll.meta
 /Build.local.props
 

@@ -14,73 +14,46 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: [self-hosted, Windows, X64, lethal-company-build]
-    defaults:
-      run:
-        shell: powershell
+    runs-on: ubuntu-latest
     steps:
       - name: Check out tagged source
         uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Set up Python for package validation
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
-      - name: Set up .NET for plugin and Thunderstore CLI
+      - name: Check prepared release inputs
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          THUNDERSTORE_TOKEN: ${{ secrets.TCLI_AUTH_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$THUNDERSTORE_TOKEN" || { echo 'Set the TCLI_AUTH_TOKEN repository secret.' >&2; exit 1; }
+          python scripts/Verify-ReleaseInputs.py --tag "$RELEASE_TAG"
+          python scripts/Validate-Release.py --tag "$RELEASE_TAG"
+
+      - name: Create and validate package ZIP
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          python scripts/Package-Release.py --tag "$RELEASE_TAG"
+          python scripts/Validate-Release.py --tag "$RELEASE_TAG" --zip "Builds/MoreScrapItems-${version}.zip"
+
+      - name: Set up .NET for Thunderstore CLI
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             6.0.x
             8.0.x
 
-      - name: Set release version and check local build dependencies
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-          THUNDERSTORE_TOKEN: ${{ secrets.TCLI_AUTH_TOKEN }}
-        run: |
-          python scripts/Set-ReleaseVersion.py --tag $env:RELEASE_TAG
-          if ($LASTEXITCODE -ne 0) { throw 'Invalid release tag or version source.' }
-          python scripts/Validate-Release.py --tag $env:RELEASE_TAG
-          if ($LASTEXITCODE -ne 0) { throw 'Release versions do not match the tag.' }
-          if (-not $env:THUNDERSTORE_TOKEN) { throw 'Set the TCLI_AUTH_TOKEN repository secret before publishing.' }
-          $unity = 'C:\Program Files\Unity\Hub\Editor\2022.3.9f1\Editor\Unity.exe'
-          $game = Join-Path ${env:ProgramFiles(x86)} 'Steam\steamapps\common\Lethal Company\Lethal Company_Data\Managed\Assembly-CSharp.dll'
-          $profile = Join-Path $env:APPDATA 'r2modmanPlus-local\LethalCompany\profiles\lethal_01'
-          foreach ($path in @($unity, $game, (Join-Path $profile 'BepInEx\core\BepInEx.dll'), (Join-Path $profile 'BepInEx\plugins\Evaisa-LethalLib\LethalLib\LethalLib.dll'), (Join-Path $profile 'BepInEx\plugins\MMHOOK\Managed\MMHOOK_Assembly-CSharp.dll'))) {
-            if (-not (Test-Path -LiteralPath $path)) { throw "Build dependency missing: $path" }
-          }
-          if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) { throw '.NET SDK 8 is missing.' }
-
-      - name: Build Unity AssetBundle
-        run: |
-          $unity = 'C:\Program Files\Unity\Hub\Editor\2022.3.9f1\Editor\Unity.exe'
-          $log = Join-Path $env:RUNNER_TEMP 'more-scrap-unity.log'
-          & $unity -batchmode -nographics -quit -projectPath $env:GITHUB_WORKSPACE -executeMethod MoreScrapAssetBuilder.Build -logFile $log
-          if ($LASTEXITCODE -ne 0 -or -not (Test-Path 'Builds/MoreScrapItems/morescrapassets')) {
-            if (Test-Path $log) { Get-Content $log -Tail 100 }
-            throw 'Unity AssetBundle build failed.'
-          }
-
-      - name: Build plugin and package ZIP
-        run: |
-          & .\scripts\Build-Package.ps1
-          if (-not $?) { throw 'Plugin/package build failed.' }
-
-      - name: Validate release ZIP
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          $version = $env:RELEASE_TAG.Substring(1)
-          python scripts/Validate-Release.py --tag $env:RELEASE_TAG --zip "Builds/MoreScrapItems-$version.zip"
-          if ($LASTEXITCODE -ne 0) { throw 'Release ZIP validation failed.' }
-
       - name: Install Thunderstore CLI
-        run: |
-          dotnet tool install tcli --tool-path .\.tools --version 0.2.4
-          if ($LASTEXITCODE -ne 0) { throw 'Thunderstore CLI installation failed.' }
+        run: dotnet tool install tcli --tool-path ./.tools --version 0.2.4
 
       - name: Create GitHub Release and attach ZIP
         uses: actions/github-script@v7
@@ -114,6 +87,9 @@ jobs:
           TCLI_AUTH_TOKEN: ${{ secrets.TCLI_AUTH_TOKEN }}
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          $version = $env:RELEASE_TAG.Substring(1)
-          & .\.tools\tcli.exe publish --config-path thunderstore.toml --package-version $version --file "Builds/MoreScrapItems-$version.zip"
-          if ($LASTEXITCODE -ne 0) { throw 'Thunderstore upload failed.' }
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          ./.tools/tcli publish \
+            --config-path thunderstore.toml \
+            --package-version "$version" \
+            --file "Builds/MoreScrapItems-${version}.zip"

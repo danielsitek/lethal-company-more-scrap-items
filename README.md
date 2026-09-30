@@ -19,6 +19,7 @@ Hra může hodnotu upravit podle měsíce. Četnost je relativní váha při vý
 - `src/MoreScrapItems/`: BepInEx plugin.
 - `packaging/`: metadata, ikona a README instalačního balíčku.
 - `scripts/Build-Package.ps1`: sestavení pluginu a instalačního ZIPu.
+- `release-inputs/`: verzovaná DLL a AssetBundle připravené pro vydání; neobsahuje herní DLL.
 - `scripts/Optimize-Models.py`: znovuvytvoření modelů z původních zdrojů; přepíše ruční úpravy optimalizovaných `.blend`.
 - `scripts/Export-Edited-Model.py`: export uložených ručně upravených `.blend` do herního FBX.
 - `docs/`: [návod pro nový předmět](docs/new-item.md), postup úprav a výsledky ověření.
@@ -50,19 +51,20 @@ ZIP lze importovat do r2modmanu jako místní mod s autorem `danielsitek`. Při 
 
 ## Publikování na Thunderstore
 
-Jednorázově nastav:
+Token Thunderstore Service Account týmu `danielsitek` ulož do GitHub Actions secretu `TCLI_AUTH_TOKEN`. Žádný vlastní runner ani zapnutý domácí počítač při vydání nejsou potřeba.
 
-1. V Thunderstore týmu `danielsitek` vytvoř **Service Account** a jeho token ulož v GitHub repozitáři do **Settings → Secrets and variables → Actions** jako secret `TCLI_AUTH_TOKEN`.
-2. V GitHub repozitáři otevři **Settings → Actions → Runners → New self-hosted runner**. Přidej tento Windows počítač podle zobrazených příkazů a při registraci mu dej štítek `lethal-company-build`. Runner spouštěj pod účtem, ve kterém fungují Unity, .NET, Steam a profil r2modman `lethal_01`; při vydání musí být počítač zapnutý a runner online. Při instalaci jako služba ověř, že služba používá účet s přístupem k Unity licenci a profilu, protože systémový účet má jinou složku AppData.
+Před vydáním nové verze:
 
-Runner na osobním PC pro veřejný repozitář představuje bezpečnostní riziko. Použij ho pouze pro tento repozitář a účet bez administrátorských práv; nepovoluj na něm workflow spouštěná z cizích pull requestů. [GitHub uvádí podrobnosti](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners).
+1. Po změně modelů vytvoř AssetBundle v Unity přes **Tools → More Scrap Items → Build models and scrap bundle**.
+2. Na Windows počítači s hrou a r2modman profilem spusť `./scripts/Prepare-Release.ps1 -Version 0.1.0`. Skript nastaví verzi, sestaví plugin, zkopíruje DLL i bundle do `release-inputs/` a uloží otisky zdrojů. Vygenerovaný ZIP můžeš nejprve otestovat v r2modmanu.
+3. Commitni a pushni zdroje, verzi i `release-inputs/`. Potom můžeš z libovolného počítače odeslat tag `v0.1.0` na tento commit:
 
-Pro každé vydání:
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
 
-1. Odešli změny zdrojů na GitHub. Před prvním zveřejněním je rozumné ZIP lokálně otestovat v r2modmanu.
-2. Na vydávaném commitu vytvoř a odešli nový tag, například `git tag v0.1.0` a `git push origin v0.1.0`.
-
-Workflow `.github/workflows/publish-thunderstore.yml` z tagu nastaví verzi v dočasném checkoutu, sestaví Unity AssetBundle i plugin, ověří ZIP, vytvoří GitHub Release s tímto ZIPem a nahraje stejný balíček na Thunderstore. Verzované zdrojové soubory na větvi nemění. Tag musí mít tvar `vX.Y.Z`; stejnou verzi nelze na Thunderstore zveřejnit podruhé. Stav sleduj na kartě **Actions**.
+Workflow `.github/workflows/publish-thunderstore.yml` běží na GitHubem provozovaném runneru. Ověří, že vydávané binární soubory odpovídají commitu a tagu, vytvoří ZIP a GitHub Release a nahraje stejný ZIP na Thunderstore. Když po přípravě změníš kód nebo Unity assety, kontrola vydání zastaví; znovu spusť přípravný skript. Stejnou verzi nelze na Thunderstore zveřejnit podruhé. Stav sleduj na kartě **Actions**.
 
 ## Nastavení a testování
 
@@ -77,6 +79,6 @@ Vývojové volby při běžném hraní nech vypnuté. Výsledky skutečně prove
 
 ## Git
 
-Verzujeme vlastní zdroje, modely, Unity `.meta` soubory, nastavení projektu a zámek balíčků. Lokální DLL, vytažené herní soubory, cache, buildy a nepoužitá ukázková scéna šablony jsou ignorované. Vlastní projekt pluginu `.csproj` se verzovat musí.
+Verzujeme vlastní zdroje, modely, Unity `.meta` soubory, nastavení projektu, zámek balíčků a připravené binární soubory modu v `release-inputs/`. Lokální a herní DLL, cache, buildy a nepoužitá ukázková scéna šablony jsou ignorované. Vlastní projekt pluginu `.csproj` se verzovat musí.
 
 Při přesouvání Unity assetu přesuň také jeho `.meta` soubor. [GitHub repozitář](https://github.com/danielsitek/lethal-company-more-scrap-items) je nastaven jako `origin`. Licenci pro případné veřejné zveřejnění je potřeba zvolit samostatně.
