@@ -16,7 +16,6 @@ namespace Dan.MoreScrapItems;
 public sealed class Plugin : BaseUnityPlugin
 {
     public const string Guid = "danielsitek.more-scrap-items";
-    private const string PreviousGuid = "dansi.more-scrap-items";
     public const string Name = "More Scrap Items";
     public const string Version = "0.1.0";
     private AssetBundle? assets;
@@ -28,7 +27,6 @@ public sealed class Plugin : BaseUnityPlugin
 
     private void Awake()
     {
-        MigrateConfig();
         testSpawn = Config.Bind("Development", "SpawnInShipForTesting", false, "Host only: spawn one of each item near the player once per game launch, for local testing.");
         testHolding = Config.Bind("Development", "RunHoldingTest", false, "Local development only: use the game's normal grab and discard routines to inspect both items. Requires SpawnInShipForTesting.");
         var mugRarity = Config.Bind("Spawn", "QuotaMugRarity", 25,
@@ -44,20 +42,11 @@ public sealed class Plugin : BaseUnityPlugin
         if (testSpawn.Value) On.StartOfRound.Start += StartRoundForTesting;
     }
 
-    private void MigrateConfig()
-    {
-        var previousPath = Path.Combine(Paths.ConfigPath, PreviousGuid + ".cfg");
-        if (File.Exists(Config.ConfigFilePath) || !File.Exists(previousPath)) return;
-        File.Copy(previousPath, Config.ConfigFilePath);
-        Config.Reload();
-        Logger.LogInfo("Copied existing configuration to " + Config.ConfigFilePath);
-    }
-
     private void Register(string id, string title, int itemId, int min, int max, float weight, int rarity)
     {
         var model = assets!.LoadAsset<GameObject>($"Assets/MoreScrapItems/Prefabs/{id}.prefab");
         if (model == null) throw new InvalidOperationException("Missing model: " + id);
-        var prefab = NetworkPrefabs.CreateNetworkPrefab(PreviousGuid + "." + id);
+        var prefab = NetworkPrefabs.CreateNetworkPrefab(Guid + "." + id);
         DontDestroyOnLoad(prefab.transform.root.gameObject);
         prefab.tag = "PhysicsProp"; prefab.layer = LayerMask.NameToLayer("Props");
         var visual = Instantiate(model, prefab.transform);

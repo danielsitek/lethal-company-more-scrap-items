@@ -24,4 +24,4 @@ After the first launch, edit `BepInEx/config/danielsitek.more-scrap-items.cfg` i
 - `[Spawn]` — `QuotaMugRarity` and `MoonFrameRarity` set each item's relative spawn weight. Set a value to `0` to disable that item.
 - `[Holding]` — adjust each item's position and rotation in the player's hand. The default poses are ready to use.
 
-The `[Development]` options are for local testing and should stay disabled during normal play. If you used an older version with `dansi.more-scrap-items.cfg`, the mod copies those settings to the new config file on first launch.
+The `[Development]` options are for local testing and should stay disabled during normal play.

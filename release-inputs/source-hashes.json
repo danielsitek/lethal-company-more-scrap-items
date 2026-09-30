@@ -221,10 +221,10 @@
     "ProjectSettings/XRSettings.asset": "482590c196f7a82116679f58176b9d1aff21d7f9",
     "src/MoreScrapItems/FramePresentation.cs": "6b6f72ad50d8e6570961c4beeed4b7af850c34cf",
     "src/MoreScrapItems/MoreScrapItems.csproj": "7829cd396c7ed7dc3b3ef17f588bae954148f7b5",
-    "src/MoreScrapItems/Plugin.cs": "7939757750f25c766b25c79c5511b7f053b7eb1e"
+    "src/MoreScrapItems/Plugin.cs": "5f48168634ed6adbc4e6d966d2c5cef6a8a406d9"
   },
   "artifacts": {
-    "MoreScrapItems.dll": "917b47972d6176af6c142df5de3c29237a78f6ad075815f425d6d4ad2ab8f1b1",
+    "MoreScrapItems.dll": "8d071d3c780973f0643bef53f09927bbbac286fdb6cf747b828397a001e8ed9a",
     "morescrapassets": "1f37a9d04e52c37d8d83a2c48bde713a4f039bf22bd96fc559371709b9ae4fc9"
   }
 }

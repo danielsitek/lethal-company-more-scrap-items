@@ -68,7 +68,7 @@ Workflow `.github/workflows/publish-thunderstore.yml` běží na GitHubem provoz
 
 ## Nastavení a testování
 
-Konfigurace je `BepInEx/config/danielsitek.more-scrap-items.cfg`. Při prvním spuštění plugin zkopíruje nastavení ze starého `dansi.more-scrap-items.cfg`, pokud nový soubor ještě neexistuje; starý soubor ponechá jako zálohu. Síťové názvy předmětů zůstávají stejné.
+Konfigurace je `BepInEx/config/danielsitek.more-scrap-items.cfg`.
 
 - `[Spawn]`: četnost předmětů; 0 vypne daný předmět.
 - `[Holding]`: pozice a rotace vůči hernímu úchopu.
