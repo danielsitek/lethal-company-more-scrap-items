@@ -50,15 +50,19 @@ ZIP lze importovat do r2modmanu jako místní mod s autorem `danielsitek`. Při 
 
 ## Publikování na Thunderstore
 
-Jednou vytvoř v týmu `danielsitek` na Thunderstore **Service Account** a jeho token ulož do GitHub repozitáře jako Actions secret `TCLI_AUTH_TOKEN`. Token nepatří do souborů ani do Git historie.
+Jednorázově nastav:
+
+1. V Thunderstore týmu `danielsitek` vytvoř **Service Account** a jeho token ulož v GitHub repozitáři do **Settings → Secrets and variables → Actions** jako secret `TCLI_AUTH_TOKEN`.
+2. V GitHub repozitáři otevři **Settings → Actions → Runners → New self-hosted runner**. Přidej tento Windows počítač podle zobrazených příkazů a při registraci mu dej štítek `lethal-company-build`. Runner spouštěj pod účtem, ve kterém fungují Unity, .NET, Steam a profil r2modman `lethal_01`; při vydání musí být počítač zapnutý a runner online. Při instalaci jako služba ověř, že služba používá účet s přístupem k Unity licenci a profilu, protože systémový účet má jinou složku AppData.
+
+Runner na osobním PC pro veřejný repozitář představuje bezpečnostní riziko. Použij ho pouze pro tento repozitář a účet bez administrátorských práv; nepovoluj na něm workflow spouštěná z cizích pull requestů. [GitHub uvádí podrobnosti](https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners).
 
 Pro každé vydání:
 
-1. Zvyš verzi v `packaging/manifest.json`, `thunderstore.toml`, `src/MoreScrapItems/Plugin.cs`, `.csproj` a nadpisu `packaging/README.md`.
-2. Po změně modelů sestav Unity AssetBundle; pak spusť `./scripts/Build-Package.ps1` a výsledný ZIP otestuj v r2modmanu.
-3. Odešli commit na GitHub. Vytvoř **GitHub Release** z tohoto commitu se značkou `vX.Y.Z`, přilož `Builds/MoreScrapItems-X.Y.Z.zip` a teprve potom release publikuj.
+1. Odešli změny zdrojů na GitHub. Před prvním zveřejněním je rozumné ZIP lokálně otestovat v r2modmanu.
+2. Na vydávaném commitu vytvoř a odešli nový tag, například `git tag v0.1.0` a `git push origin v0.1.0`.
 
-Workflow `.github/workflows/publish-thunderstore.yml` při publikování běžného releasu ZIP ověří a nahraje pod tým `danielsitek` do komunity Lethal Company. Předběžné releasy přeskočí. GitHub runner znovu nesestavuje mod, protože nemá místní soubory hry ani Unity Editor.
+Workflow `.github/workflows/publish-thunderstore.yml` z tagu nastaví verzi v dočasném checkoutu, sestaví Unity AssetBundle i plugin, ověří ZIP, vytvoří GitHub Release s tímto ZIPem a nahraje stejný balíček na Thunderstore. Verzované zdrojové soubory na větvi nemění. Tag musí mít tvar `vX.Y.Z`; stejnou verzi nelze na Thunderstore zveřejnit podruhé. Stav sleduj na kartě **Actions**.
 
 ## Nastavení a testování
 

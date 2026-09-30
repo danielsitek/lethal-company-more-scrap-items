@@ -1,4 +1,4 @@
-"""Validate a prebuilt GitHub Release ZIP before uploading it to Thunderstore."""
+"""Validate release source versions and, when supplied, the built ZIP."""
 
 import argparse
 import json
@@ -16,7 +16,7 @@ def require(condition, message):
 
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("--zip", type=Path, required=True)
+parser.add_argument("--zip", type=Path)
 parser.add_argument("--tag", required=True)
 args = parser.parse_args()
 
@@ -41,6 +41,9 @@ require(config["package"]["websiteUrl"] == manifest["website_url"], "Thunderstor
 require(project.findtext("./PropertyGroup/Version") == version, "Project version does not match release tag.")
 require(plugin_version is not None and plugin_version.group(1) == version, "Plugin version does not match release tag.")
 require(readme.startswith(f"# More Scrap Items {version}\n"), "Package README version does not match release tag.")
+if args.zip is None:
+    print(f"Validated source version {version} for Thunderstore team danielsitek.")
+    raise SystemExit(0)
 require(args.zip.name == f"MoreScrapItems-{version}.zip", "ZIP filename does not match release tag.")
 require(args.zip.is_file(), "Release ZIP is missing.")
 
