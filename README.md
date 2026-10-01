@@ -23,7 +23,7 @@ The game may adjust an item's value depending on the moon. Spawn weight is a rel
 - `release-inputs/`: versioned plugin DLL and AssetBundle prepared for release; no game DLLs.
 - `scripts/Optimize-Models.py`: regenerates models from original sources; overwrites manual edits in optimized `.blend` files.
 - `scripts/Export-Edited-Model.py`: exports any saved `Art/<ItemId>.blend` to its Unity FBX, one model or all models; it never regenerates the Blender source.
-- `docs/`: [new-item guide](docs/new-item.md), asset workflow, and validation results.
+- `docs/`: [new-item guide](docs/new-item.md), asset workflow, [release checklist](docs/release.md), and validation results.
 
 ## Development setup
 
@@ -52,22 +52,7 @@ You can import the ZIP into r2modman as a local mod by `danielsitek`. For manual
 
 ## Publish to Thunderstore
 
-Store the `danielsitek` team's Thunderstore Service Account token in the GitHub Actions secret `TCLI_AUTH_TOKEN`. Publishing uses a GitHub-hosted runner, so your own computer does not need to be running at release time.
-
-Before releasing a new version:
-
-1. If models have changed, build the AssetBundle in Unity with **Tools → More Scrap Items → Build models and scrap bundle**.
-2. On a Windows computer with the game and r2modman profile, run `./scripts/Prepare-Release.ps1 -Version 0.1.0`. The script sets the version, builds the plugin, copies the DLL and bundle into `release-inputs/`, and records source hashes. You can test the generated ZIP in r2modman first.
-3. Commit and push the sources, version, and `release-inputs/`. Then, from any computer, push the `v0.1.0` tag on that commit:
-
-```powershell
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-The `.github/workflows/publish-thunderstore.yml` workflow checks that the staged binaries match the commit and tag, creates the ZIP and GitHub Release, and uploads the same ZIP to Thunderstore. If you change code or Unity assets after preparation, the release check stops; rerun the preparation script. Thunderstore does not allow publishing the same version twice. Follow progress on the **Actions** tab.
-
-If a tag-triggered run fails after creating the GitHub Release, fix the workflow on the default branch and run **Build and publish More Scrap Items** manually from Actions with `release_tag` set to the existing tag. The retry checks out that tag and reuses the existing GitHub Release and ZIP asset.
+Follow the [release checklist](docs/release.md) to prepare the binaries, test the ZIP, push a version tag, and verify GitHub Actions and Thunderstore. Publishing runs on GitHub, so your computer does not need to remain on after the tag is pushed.
 
 ## Configuration and testing
 

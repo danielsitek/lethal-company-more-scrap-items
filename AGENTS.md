@@ -4,6 +4,7 @@ Start with [README.md](README.md) for the project layout, setup, builds, and rel
 
 - [docs/new-item.md](docs/new-item.md): add another scrap item.
 - [docs/asset-workflow.md](docs/asset-workflow.md): edit Blender models, export FBX, and rebuild Unity assets.
+- [docs/release.md](docs/release.md): prepare, publish, verify, and retry a release.
 - [docs/validation.md](docs/validation.md): completed checks and their limits.
 - [packaging/README.md](packaging/README.md): player-facing mod description, installation, and configuration.
 - `src/MoreScrapItems/`: BepInEx plugin; `Assets/MoreScrapItems/`: Unity assets and bundle tools; `Art/`: Blender sources.
