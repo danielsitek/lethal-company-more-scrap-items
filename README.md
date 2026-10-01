@@ -67,6 +67,8 @@ git push origin v0.1.0
 
 The `.github/workflows/publish-thunderstore.yml` workflow checks that the staged binaries match the commit and tag, creates the ZIP and GitHub Release, and uploads the same ZIP to Thunderstore. If you change code or Unity assets after preparation, the release check stops; rerun the preparation script. Thunderstore does not allow publishing the same version twice. Follow progress on the **Actions** tab.
 
+If a tag-triggered run fails after creating the GitHub Release, fix the workflow on the default branch and run **Build and publish More Scrap Items** manually from Actions with `release_tag` set to the existing tag. The retry checks out that tag and reuses the existing GitHub Release and ZIP asset.
+
 ## Configuration and testing
 
 The configuration file is `BepInEx/config/danielsitek.more-scrap-items.cfg`.
