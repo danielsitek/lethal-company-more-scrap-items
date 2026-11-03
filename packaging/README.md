@@ -1,6 +1,6 @@
 # More Scrap Items 0.1.0
 
-More Scrap Items adds three original scrap finds to **Lethal Company**: a QUOTA mug, a framed portrait of Sírius the dog, and a small Ringhoffer 240 tram model. Pick them up, scan them, and bring them back to meet the quota. The picture frame stands at an angle when placed on the floor, with its support leg extended; it folds flat while held. The tram rings when dropped.
+More Scrap Items adds three original scrap finds to **Lethal Company**: a QUOTA mug, a framed portrait of Sírius the dog, and a small Ringhoffer 240 tram model. Pick them up, scan them, and bring them back to meet the quota. The picture frame stands at an angle when placed on the floor, with its support leg extended; it folds flat while held. The tram rings when dropped. Every mug carries one of six "ai slop" prints, so a haul of mugs can look all different.
 
 ## Items
 

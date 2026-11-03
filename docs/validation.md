@@ -65,3 +65,9 @@ Neověřeno: připojení dalšího klienta, kompletní herní průchod/prodej a 
 - Upravený mesh byl vyexportován přímo z uloženého `.blend` do `QuotaMug.fbx` pomocí `Export-Edited-Model.py`; generátor z `Art/Source` nebyl spuštěn. Unity 2022.3.9f1 úspěšně sestavilo Windows AssetBundle. Kontrola prefabu: 604 trojúhelníků, jeden renderer, jeden materiál, atlas 512 × 512 / BC7 / 10 mip úrovní. Plugin Release a instalační ZIP sestaveny bez chyb a varování.
 - Lethal Company v81, místní vývojový profil: nový hrnek se vytvořil, zvedl běžnou herní metodou (`HOLD_TEST held=True`) a odložil (`DROP_TEST released=True`). Vizuálně má otvor nahoru, ucho napojené na tělo a celý nápis QUOTA je čitelný v ruce. Rámeček zůstal funkční; po dvou odloženích mezera nad podlahou `0,0000 m`.
 - DLL a AssetBundle byly aktualizovány v profilech `lethal_01` a `MoreScrapItems-Dev`. Vývojový automatický test byl po kontrole znovu vypnut. Druhý multiplayer klient nebyl testován.
+
+## Varianty potisku hrnku 2026-11-03
+
+- `Create-QuotaMugVariants.py` vytvořil šest atlasů 512 × 512. Oproti `QuotaMugBaseColor.png` se liší jen oblast nápisu; pruh barevných vzorků je beze změny.
+- Náhled v Blenderu (Workbench, `Art/QuotaMug.blend` s vyměněným atlasem) ze tří úhlů: nápisy nejsou zdeformované a nezasahují pod ucho.
+- Neověřeno: build v Unity, kompilace pluginu a test ve hře. Na stroji, kde vznikla změna, nebyly Unity ani .NET SDK.
