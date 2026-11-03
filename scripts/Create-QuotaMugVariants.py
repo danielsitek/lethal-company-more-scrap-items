@@ -5,7 +5,7 @@ Run with a Python installation that has Pillow and NumPy:
 
 With --sheet, the labels are first cut out of the supplied 748x1090 sheet and
 stored in Art/Source/QuotaMugLabels, so the sheet itself is not needed later.
-Without it, the atlases are rebuilt from those stored labels.
+Every stored Label<n>.png becomes QuotaMugVariant<n>BaseColor.png.
 
 Each variant starts from QuotaMugBaseColor.png: the QUOTA print is replaced by a
 label and the palette strip used by the rest of the mesh is kept intact.
@@ -44,6 +44,10 @@ QUOTA_BOX = (200, 207, 312, 273)  # px; the QUOTA print plus a margin, painted o
 
 def label_path(index: int) -> Path:
     return labels_dir / f"Label{index}.png"
+
+
+def stored_label_indices() -> list[int]:
+    return sorted(int(path.stem.removeprefix("Label")) for path in labels_dir.glob("Label*.png"))
 
 
 def atlas_path(index: int) -> Path:
@@ -96,7 +100,7 @@ def main() -> None:
     if args.sheet:
         extract_labels(args.sheet)
     with Image.open(base_atlas_path) as base:
-        for index in range(1, len(LABEL_BOXES) + 1):
+        for index in stored_label_indices():
             with Image.open(label_path(index)) as label:
                 create_atlas(base, label).save(atlas_path(index), optimize=True)
             print(f"Wrote {atlas_path(index).relative_to(root)}")

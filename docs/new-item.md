@@ -18,8 +18,8 @@ Model má mít jeden mesh pojmenovaný `CopperBell`, jednu UV mapu a jeden mater
 V `Assets/MoreScrapItems/Editor/MoreScrapAssetBuilder.cs`:
 
 - Přidej `MakeModel("CopperBell", 1.0f)`; měřítko uprav podle výsledku ve hře.
-- Do `paths` vlož prefab mezi prefaby a ikonu mezi ikony.
-- Rozšiř validaci na všechny prefaby v poli `paths` (aktuálně `paths.Take(4)`), včetně nového předmětu.
+- Do `itemAssets` vlož prefab mezi prefaby a ikonu mezi ikony.
+- Rozšiř validaci na všechny prefaby v poli `itemAssets` (aktuálně `itemAssets.Take(4)`), včetně nového předmětu.
 
 ## 3. Zaregistruj předmět
 

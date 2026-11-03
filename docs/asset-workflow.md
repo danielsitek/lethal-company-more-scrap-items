@@ -32,7 +32,7 @@ python scripts/Create-QuotaMugVariants.py
 
 S volbou `--sheet <obrázek>` skript nejprve vyřízne nápisy z dodaného listu 748 × 1090 podle `LABEL_BOXES`. Pixel atlasu odpovídá vodorovně 1,0 mm obvodu a svisle 0,45 mm výšky, proto skript nápisy svisle natahuje 2,25×. Pravý okraj nápisu nesmí přesáhnout x ≈ 305 px, jinak zasahuje pod ucho.
 
-Builder pro každý soubor `QuotaMugVariant*BaseColor.png` vytvoří materiál `Materials/QuotaMugVariant<n>.mat` se stejným nastavením jako základní atlas a přidá ho do bundlu. Plugin načte všechny tyto materiály a komponenta `MaterialVariant` po spawnu vybere jeden podle `NetworkObjectId`. Všichni hráči proto vidí stejnou variantu bez síťové zprávy. Po načtení uložené hry dostanou předměty nová ID, takže hrnky na lodi mohou změnit potisk. Další variantu přidáš novým řádkem v `LABEL_BOXES` a během skriptu; C# kód se nemění.
+Builder pro každý soubor `QuotaMugVariant*BaseColor.png` vytvoří materiál `Materials/QuotaMugVariant<n>.mat` se stejným nastavením jako základní atlas a přidá ho do bundlu. Plugin načte všechny tyto materiály a komponenta `MaterialVariant` po spawnu vybere jeden podle `NetworkObjectId`. Všichni hráči proto vidí stejnou variantu bez síťové zprávy. Po načtení uložené hry dostanou předměty nová ID, takže hrnky na lodi mohou změnit potisk. Další variantu přidáš jako průhledné `Label<n>.png` do `Art/Source/QuotaMugLabels` a spuštěním skriptu; C# kód se nemění.
 
 ## Textury a optimalizace
 
