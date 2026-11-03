@@ -129,11 +129,12 @@ public sealed class Plugin : BaseUnityPlugin
     // The asset builder bundles one material per Textures/<id>Variant<n>BaseColor.png.
     private Material[] LoadMaterialVariants(string id)
     {
+        var bundle = assets!;
         var prefix = $"assets/morescrapitems/materials/{id}Variant".ToLowerInvariant();
-        var variants = assets!.GetAllAssetNames()
+        var variants = bundle.GetAllAssetNames()
             .Where(path => path.StartsWith(prefix, StringComparison.Ordinal))
             .OrderBy(path => path, StringComparer.Ordinal)
-            .Select(path => assets.LoadAsset<Material>(path))
+            .Select(path => bundle.LoadAsset<Material>(path))
             .ToArray();
         if (variants.Length == 0) throw new InvalidOperationException($"Missing {id} material variants; update DLL and asset bundle together.");
         return variants;
