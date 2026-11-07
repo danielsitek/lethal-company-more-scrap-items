@@ -108,6 +108,8 @@ public sealed class Plugin : BaseUnityPlugin
         var scan = scanner.AddComponent<ScanNodeProperties>();
         scan.headerText = title; scan.subText = "Value: $0"; scan.nodeType = 2;
         scan.maxRange = 13; scan.minRange = 1; scan.requiresLineOfSight = true;
+        if (id == "QuotaMug")
+            prefab.AddComponent<MaterialVariant>().Configure(prop, renderers[0], LoadMaterialVariants(id));
         if (id == "MoonFrame")
         {
             var placed = assets.LoadAsset<GameObject>("Assets/MoreScrapItems/Prefabs/MoonFramePlaced.prefab");
@@ -122,6 +124,20 @@ public sealed class Plugin : BaseUnityPlugin
         Items.RegisterScrap(item, rarity, Levels.LevelTypes.All);
         registered.Add(item);
         Logger.LogInfo($"Registered {item.itemName}; value {item.minValue}-{item.maxValue}; rarity {rarity}.");
+    }
+
+    // The asset builder bundles one material per Textures/<id>Variant<n>BaseColor.png.
+    private Material[] LoadMaterialVariants(string id)
+    {
+        var bundle = assets!;
+        var prefix = $"assets/morescrapitems/materials/{id}Variant".ToLowerInvariant();
+        var variants = bundle.GetAllAssetNames()
+            .Where(path => path.StartsWith(prefix, StringComparison.Ordinal))
+            .OrderBy(path => path, StringComparer.Ordinal)
+            .Select(path => bundle.LoadAsset<Material>(path))
+            .ToArray();
+        if (variants.Length == 0) throw new InvalidOperationException($"Missing {id} material variants; update DLL and asset bundle together.");
+        return variants;
     }
 
     private void StartRoundForTesting(On.StartOfRound.orig_Start original, StartOfRound round)

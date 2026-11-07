@@ -20,6 +20,28 @@ Před exportem skript kontroluje jeden mesh, jednu UV mapu a materiál, shodu za
 
 `Optimize-Models.py` používá původní soubory v `Art/Source` a přepisuje optimalizované `.blend` hrnku a rámečku; po ručních úpravách ho nespouštěj. `Create-Ringhoffer240.py` přepisuje tramvajový `.blend`, FBX, atlas i ikonu. Pro ruční změny tramvaje používej pouze `Export-Edited-Model.py`.
 
+## Varianty potisku hrnku
+
+Ve hře hrnek místo QUOTA nese jeden ze šesti nápisů „ai slop“. Každá varianta je samostatný atlas `QuotaMugVariant<n>BaseColor.png` vzniklý ze `QuotaMugBaseColor.png`: nápis QUOTA je přetřený smaltem, na jeho místo je vložen nápis a pruh barevných vzorků zůstává beze změny. Model, UV mapa ani `.blend` se nemění; základní atlas zůstává výchozím materiálem prefabu.
+
+Vyříznuté nápisy jsou v `Art/Source/QuotaMugLabels`. Atlasy z nich znovu vytvoříš příkazem:
+
+```powershell
+python scripts/Create-QuotaMugVariants.py
+```
+
+S volbou `--sheet <obrázek>` skript nejprve vyřízne nápisy z dodaného listu 748 × 1090 podle `LABEL_BOXES`. Pixel atlasu odpovídá vodorovně 1,0 mm obvodu a svisle 0,45 mm výšky, proto skript nápisy svisle natahuje 2,25×. Pravý okraj nápisu nesmí přesáhnout x ≈ 305 px, jinak zasahuje pod ucho.
+
+Builder pro každý soubor `QuotaMugVariant*BaseColor.png` vytvoří materiál `Materials/QuotaMugVariant<n>.mat` se stejným nastavením jako základní atlas a přidá ho do bundlu. Plugin načte všechny tyto materiály a komponenta `MaterialVariant` po spawnu vybere jeden podle `NetworkObjectId`. Všichni hráči proto vidí stejnou variantu bez síťové zprávy. Po načtení uložené hry dostanou předměty nová ID, takže hrnky na lodi mohou změnit potisk. Další variantu přidáš jako průhledné `Label<n>.png` do `Art/Source/QuotaMugLabels` a spuštěním skriptu; C# kód se nemění.
+
+Inventární ikona hrnku a ikona balíčku ukazují variantu 1. Po změně modelu nebo zvoleného potisku je znovu vykresli ze skutečného modelu příkazem:
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python scripts/Render-QuotaMugIcon.py -- --project-root . --variant 1
+```
+
+Skript vytvoří `Assets/MoreScrapItems/Models/QuotaMugIcon.png` (512 × 512) a `packaging/icon.png` (256 × 256). Poté znovu sestav Unity AssetBundle a instalační ZIP.
+
 ## Textury a optimalizace
 
 | Model | Původní trojúhelníky | Optimalizované | Renderery | Materiály |

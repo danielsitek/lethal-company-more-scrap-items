@@ -65,3 +65,13 @@ Neověřeno: připojení dalšího klienta, kompletní herní průchod/prodej a 
 - Upravený mesh byl vyexportován přímo z uloženého `.blend` do `QuotaMug.fbx` pomocí `Export-Edited-Model.py`; generátor z `Art/Source` nebyl spuštěn. Unity 2022.3.9f1 úspěšně sestavilo Windows AssetBundle. Kontrola prefabu: 604 trojúhelníků, jeden renderer, jeden materiál, atlas 512 × 512 / BC7 / 10 mip úrovní. Plugin Release a instalační ZIP sestaveny bez chyb a varování.
 - Lethal Company v81, místní vývojový profil: nový hrnek se vytvořil, zvedl běžnou herní metodou (`HOLD_TEST held=True`) a odložil (`DROP_TEST released=True`). Vizuálně má otvor nahoru, ucho napojené na tělo a celý nápis QUOTA je čitelný v ruce. Rámeček zůstal funkční; po dvou odloženích mezera nad podlahou `0,0000 m`.
 - DLL a AssetBundle byly aktualizovány v profilech `lethal_01` a `MoreScrapItems-Dev`. Vývojový automatický test byl po kontrole znovu vypnut. Druhý multiplayer klient nebyl testován.
+
+## Varianty potisku hrnku 2026-11-03
+
+- `Create-QuotaMugVariants.py` vytvořil šest atlasů 512 × 512. Oproti `QuotaMugBaseColor.png` se liší jen oblast nápisu; pruh barevných vzorků je beze změny.
+- Náhled v Blenderu (Workbench, `Art/QuotaMug.blend` s vyměněným atlasem) ze tří úhlů: nápisy nejsou zdeformované a nezasahují pod ucho.
+- Unity 2022.3.9f1 na Windows: AssetBundle sestaven. `asset-validation.txt` potvrzuje pro `QuotaMugVariant1` až `QuotaMugVariant6` textury 512 × 512, BC7 a 10 mip úrovní. Nové materiály a `.meta` soubory vznikly při importu; ostatní sledované materiály se nezměnily.
+- Plugin .NET Standard 2.1 a instalační ZIP sestaveny bez chyb a varování. Nová DLL a AssetBundle byly vloženy do vývojového profilu `MoreScrapItems-Dev`.
+- Lethal Company v81, místní LAN hostitel: `TEST_SPAWN_COMPLETE Quota mug`; v logu nejsou výjimky ani hlášení `Missing QuotaMug material variants`. Potisk „slop“ byl vidět na hrnku v ruce a uživatel potvrdil, že vizuální kontrola hrnku v místní hře dopadla dobře. Testovací volba `SpawnInShipForTesting` je znovu vypnutá. Uložená pozice použitá pro test byla obnovena ze zálohy.
+- Ikona v inventáři i ikona balíčku byly znovu vykresleny z uloženého modelu s atlasem varianty 1 („ai slop“). Na spawnutém předmětu je jedna ze šesti variant; název `Quota mug` zůstává. Po načtení uložené hry se potisk může změnit, protože výběr závisí na novém `NetworkObjectId`.
+- Neověřeno: shodný potisk u druhého multiplayer klienta, stálost varianty po načtení uložené hry a aktualizovaná ikona přímo ve hře (po změně ikony byl znovu sestaven bundle i ZIP, ale herní test se na přání uživatele neopakoval).

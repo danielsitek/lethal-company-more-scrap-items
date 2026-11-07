@@ -31,16 +31,18 @@ public static class MoreScrapAssetBuilder
             MakeModel("MoonFrame", 1.4f);
             MakeModel("MoonFramePlaced", 1.4f, "MoonFrame");
             MakeModel("Ringhoffer240", 1.0f);
+            var mugVariants = MakeMaterialVariants("QuotaMug");
             AssetDatabase.SaveAssets();
-            var paths = new[] {
+            var itemAssets = new[] {
                 Root + "/Prefabs/QuotaMug.prefab", Root + "/Prefabs/MoonFrame.prefab",
                 Root + "/Prefabs/MoonFramePlaced.prefab",
                 Root + "/Prefabs/Ringhoffer240.prefab",
                 Root + "/Models/QuotaMugIcon.png", Root + "/Models/MoonFrameIcon.png",
                 Root + "/Models/Ringhoffer240Icon.png", Root + "/Audio/Ringhoffer240Bell.wav"
             };
+            var paths = itemAssets.Concat(mugVariants).ToArray();
             var report = new List<string>();
-            foreach (var path in paths.Take(4))
+            foreach (var path in itemAssets.Take(4))
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 var meshes = prefab.GetComponentsInChildren<MeshFilter>();
@@ -58,6 +60,14 @@ public static class MoreScrapAssetBuilder
                     (bounds.size.x < .535f || bounds.size.x > .545f))
                     throw new Exception($"Ringhoffer240 must be 0.540 m long in Unity; got {bounds.size.x:F4} m.");
                 report.Add($"{prefab.name} triangles={triangles} renderers={renderers.Length} materials=1 texture={texture.width}x{texture.height} format={texture.format} mipmaps={texture.mipmapCount} bounds={bounds.size}");
+            }
+            foreach (var path in mugVariants)
+            {
+                var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+                var texture = material.GetTexture("_BaseColorMap") as Texture2D;
+                if (texture == null || texture.width != 512 || texture.height != 512 || texture.mipmapCount <= 1)
+                    throw new Exception(material.name + ": expected a 512x512 atlas with mipmaps.");
+                report.Add($"{material.name} texture={texture.width}x{texture.height} format={texture.format} mipmaps={texture.mipmapCount}");
             }
             Directory.CreateDirectory("Builds/MoreScrapItems");
             var result = BuildPipeline.BuildAssetBundles("Builds/MoreScrapItems",
@@ -90,24 +100,7 @@ public static class MoreScrapAssetBuilder
         modelImporter.isReadable = false;
         modelImporter.SaveAndReimport();
         var texturePath = Root + "/Textures/" + textureId + "BaseColor.png";
-        var textureImporter = (TextureImporter)AssetImporter.GetAtPath(texturePath);
-        if (textureImporter == null) throw new Exception("Missing atlas: " + texturePath);
-        textureImporter.textureType = TextureImporterType.Default;
-        textureImporter.sRGBTexture = true;
-        textureImporter.alphaSource = TextureImporterAlphaSource.None;
-        textureImporter.mipmapEnabled = true;
-        textureImporter.isReadable = false;
-        textureImporter.maxTextureSize = 512;
-        textureImporter.wrapMode = TextureWrapMode.Clamp;
-        textureImporter.filterMode = FilterMode.Bilinear;
-        textureImporter.anisoLevel = 1;
-        textureImporter.textureCompression = TextureImporterCompression.CompressedHQ;
-        var standalone = textureImporter.GetPlatformTextureSettings("Standalone");
-        standalone.overridden = true;
-        standalone.maxTextureSize = 512;
-        standalone.format = TextureImporterFormat.BC7;
-        textureImporter.SetPlatformTextureSettings(standalone);
-        textureImporter.SaveAndReimport();
+        ConfigureAtlas(texturePath);
 
         var root = new GameObject(id);
         try
@@ -118,7 +111,7 @@ public static class MoreScrapAssetBuilder
             visual.transform.SetParent(root.transform, false);
             visual.transform.localScale = Vector3.one * scale;
             var renderers = visual.GetComponentsInChildren<MeshRenderer>();
-            var material = CreateMaterial(textureId, AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
+            var material = CreateMaterial(textureId + "Atlas", textureId, AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath));
             foreach (var renderer in renderers) renderer.sharedMaterials = new[] { material };
             if (renderers.Length == 0) throw new Exception(id + ": model has no renderer.");
             var bounds = renderers[0].bounds;
@@ -138,21 +131,60 @@ public static class MoreScrapAssetBuilder
         iconImporter.SaveAndReimport();
     }
 
-    static Material CreateMaterial(string id, Texture2D texture)
+    // Each Textures/<modelId>Variant<n>BaseColor.png becomes a material the plugin can swap in at spawn.
+    static string[] MakeMaterialVariants(string modelId)
     {
-        var path = Root + "/Materials/" + id + "Atlas.mat";
+        var paths = new List<string>();
+        foreach (var texturePath in Directory.GetFiles(Root + "/Textures", modelId + "Variant*BaseColor.png")
+                     .Select(path => path.Replace('\\', '/')).OrderBy(path => path, StringComparer.Ordinal))
+        {
+            ConfigureAtlas(texturePath);
+            var name = Path.GetFileNameWithoutExtension(texturePath).Replace("BaseColor", "");
+            var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texturePath);
+            CreateMaterial(name, modelId, texture);
+            paths.Add(Root + "/Materials/" + name + ".mat");
+        }
+        if (paths.Count == 0) throw new Exception(modelId + ": no texture variants found.");
+        return paths.ToArray();
+    }
+
+    static void ConfigureAtlas(string texturePath)
+    {
+        var textureImporter = (TextureImporter)AssetImporter.GetAtPath(texturePath);
+        if (textureImporter == null) throw new Exception("Missing atlas: " + texturePath);
+        textureImporter.textureType = TextureImporterType.Default;
+        textureImporter.sRGBTexture = true;
+        textureImporter.alphaSource = TextureImporterAlphaSource.None;
+        textureImporter.mipmapEnabled = true;
+        textureImporter.isReadable = false;
+        textureImporter.maxTextureSize = 512;
+        textureImporter.wrapMode = TextureWrapMode.Clamp;
+        textureImporter.filterMode = FilterMode.Bilinear;
+        textureImporter.anisoLevel = 1;
+        textureImporter.textureCompression = TextureImporterCompression.CompressedHQ;
+        var standalone = textureImporter.GetPlatformTextureSettings("Standalone");
+        standalone.overridden = true;
+        standalone.maxTextureSize = 512;
+        standalone.format = TextureImporterFormat.BC7;
+        textureImporter.SetPlatformTextureSettings(standalone);
+        textureImporter.SaveAndReimport();
+    }
+
+    static Material CreateMaterial(string name, string modelId, Texture2D texture)
+    {
+        var path = Root + "/Materials/" + name + ".mat";
         var shader = Shader.Find("HDRP/Lit");
         if (shader == null) throw new Exception("HDRP/Lit not available.");
         var material = AssetDatabase.LoadAssetAtPath<Material>(path);
         if (material == null)
         {
-            material = new Material(shader) { name = id + "Atlas" };
+            material = new Material(shader) { name = name };
             AssetDatabase.CreateAsset(material, path);
         }
         material.SetColor("_BaseColor", Color.white);
         material.SetTexture("_BaseColorMap", texture);
-        material.SetFloat("_Metallic", id == "QuotaMug" ? .12f : id == "Ringhoffer240" ? .08f : 0);
-        material.SetFloat("_Smoothness", id == "QuotaMug" ? .65f : id == "Ringhoffer240" ? .4f : .3f);
+        material.SetFloat("_Metallic", modelId == "QuotaMug" ? .12f : modelId == "Ringhoffer240" ? .08f : 0);
+        material.SetFloat("_Smoothness", modelId == "QuotaMug" ? .65f : modelId == "Ringhoffer240" ? .4f : .3f);
         material.SetFloat("_DoubleSidedEnable", 0);
         material.SetFloat("_CullMode", 2);
         material.SetFloat("_CullModeForward", 2);

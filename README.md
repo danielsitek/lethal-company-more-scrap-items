@@ -8,6 +8,8 @@ A Lethal Company mod by **danielsitek**. It adds the QUOTA mug, a picture frame 
 | Sírius frame | 90–180 | 18 | 40 |
 | Ringhoffer 240 tram | 110–220 | 12 | 2,364 |
 
+Each spawned mug shows one of six "ai slop" prints; all players see the same print on a given mug.
+
 When dropped, the frame tilts 15° and unfolds its rear stand. In the player's hand, it is upright with the stand folded. Both variants have 40 triangles and share a texture and material.
 
 The game may adjust an item's value depending on the moon. Spawn weight is a relative weight used when selecting scrap.
@@ -22,6 +24,7 @@ The game may adjust an item's value depending on the moon. Spawn weight is a rel
 - `scripts/Build-Package.ps1`: builds the plugin and installation ZIP.
 - `release-inputs/`: versioned plugin DLL and AssetBundle prepared for release; no game DLLs.
 - `scripts/Optimize-Models.py`: regenerates models from original sources; overwrites manual edits in optimized `.blend` files.
+- `scripts/Create-QuotaMugVariants.py`: regenerates the mug print variants from labels in `Art/Source/QuotaMugLabels`.
 - `scripts/Export-Edited-Model.py`: exports any saved `Art/<ItemId>.blend` to its Unity FBX, one model or all models; it never regenerates the Blender source.
 - `docs/`: [new-item guide](docs/new-item.md), asset workflow, [release checklist](docs/release.md), and validation results.
 
