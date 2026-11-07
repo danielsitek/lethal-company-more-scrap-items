@@ -34,6 +34,14 @@ S volbou `--sheet <obrázek>` skript nejprve vyřízne nápisy z dodaného listu
 
 Builder pro každý soubor `QuotaMugVariant*BaseColor.png` vytvoří materiál `Materials/QuotaMugVariant<n>.mat` se stejným nastavením jako základní atlas a přidá ho do bundlu. Plugin načte všechny tyto materiály a komponenta `MaterialVariant` po spawnu vybere jeden podle `NetworkObjectId`. Všichni hráči proto vidí stejnou variantu bez síťové zprávy. Po načtení uložené hry dostanou předměty nová ID, takže hrnky na lodi mohou změnit potisk. Další variantu přidáš jako průhledné `Label<n>.png` do `Art/Source/QuotaMugLabels` a spuštěním skriptu; C# kód se nemění.
 
+Inventární ikona hrnku a ikona balíčku ukazují variantu 1. Po změně modelu nebo zvoleného potisku je znovu vykresli ze skutečného modelu příkazem:
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --python scripts/Render-QuotaMugIcon.py -- --project-root . --variant 1
+```
+
+Skript vytvoří `Assets/MoreScrapItems/Models/QuotaMugIcon.png` (512 × 512) a `packaging/icon.png` (256 × 256). Poté znovu sestav Unity AssetBundle a instalační ZIP.
+
 ## Textury a optimalizace
 
 | Model | Původní trojúhelníky | Optimalizované | Renderery | Materiály |
